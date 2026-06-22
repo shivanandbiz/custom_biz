@@ -85,7 +85,31 @@ def register_vendor(data):
             })
             address.save(ignore_permissions=True)
             
-        # 4. Create the Contact Document
+        # 4. Handle Document Upload Attachment
+        doc_base64 = data.get("vendor_document_base64")
+        doc_name = data.get("vendor_document_name")
+        if doc_base64 and doc_name:
+            import base64
+            from frappe.utils.file_manager import save_file
+            
+            # Clean base64 string
+            if "," in doc_base64:
+                doc_base64 = doc_base64.split(",")[1]
+            
+            try:
+                file_bytes = base64.b64decode(doc_base64)
+                save_file(
+                    fname=doc_name,
+                    content=file_bytes,
+                    dt="Supplier",
+                    dn=supplier.name,
+                    is_private=1,
+                    folder="Home/Attachments"
+                )
+            except Exception as e:
+                frappe.log_error(f"Vendor Registration File Upload Error: {str(e)}", "Vendor Registration")
+
+        # 5. Create the Contact Document
         contact = frappe.new_doc("Contact")
         contact.first_name = first_name
         contact.last_name = data.get("last_name")

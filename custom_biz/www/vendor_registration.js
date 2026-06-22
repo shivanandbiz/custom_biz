@@ -85,6 +85,39 @@ frappe.ready(function() {
     });
 
     // ----------------------------------------------------
+    // 3. Document Upload Handling
+    // ----------------------------------------------------
+    $('#vendor-document-upload').on('change', function(e) {
+        let file = e.target.files[0];
+        if (file) {
+            // Update label
+            $('#vendor-document-label').text(file.name);
+            $('#vendor_document_name').val(file.name);
+            
+            // Validate size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                frappe.msgprint({title: 'File too large', indicator: 'red', message: 'Maximum allowed file size is 5MB.'});
+                $(this).val('');
+                $('#vendor-document-label').text('Choose file...');
+                $('#vendor_document_name').val('');
+                $('#vendor_document_base64').val('');
+                return;
+            }
+
+            // Read file as Base64 Data URL
+            let reader = new FileReader();
+            reader.onload = function(event) {
+                $('#vendor_document_base64').val(event.target.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#vendor-document-label').text('Choose file...');
+            $('#vendor_document_name').val('');
+            $('#vendor_document_base64').val('');
+        }
+    });
+
+    // ----------------------------------------------------
     // 3. Form Submission Logic
     // ----------------------------------------------------
     $('#vendor-registration-form').on('submit', function(e) {
