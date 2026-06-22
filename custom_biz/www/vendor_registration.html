@@ -1,0 +1,367 @@
+{% extends "templates/web.html" %}
+
+{% block title %}Vendor Registration{% endblock %}
+
+{% block page_content %}
+<style>
+    :root {
+        --primary-color: #1A4E8A; /* Dark blue */
+        --primary-hover: #123866;
+        --bg-color: #F4F7F6;
+        --card-bg: #EAF2F8; /* Light blue form background */
+        --text-main: #111827;
+        --text-muted: #4B5563;
+        --border-color: #B5C4D3; /* Slightly darker border for inputs to match the visible borders */
+        --input-bg: #FFFFFF;
+        --button-bg: #F37021; /* Orange */
+        --button-hover: #D95D1A;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .registration-wrapper {
+        padding: 0 15px 5px 15px;
+        max-width: 850px;
+        margin: 15px auto 0 auto;
+    }
+
+    /* Premium Header */
+    .form-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .form-header h2 {
+        color: var(--primary-color);
+        font-weight: 800;
+        font-size: 2.2rem;
+        letter-spacing: -0.5px;
+        margin-bottom: 10px;
+        margin-top: 0;
+        text-transform: uppercase;
+    }
+
+    .form-header p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        font-weight: 400;
+    }
+
+    /* Card Design */
+    .form-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: none;
+        padding: 30px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transform: translateY(-1px);
+    }
+
+    .section-title {
+        font-size: 1.15rem;
+        color: var(--text-main);
+        font-weight: 700;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section-title svg {
+        color: var(--primary-color);
+    }
+
+    /* Inputs */
+    .form-group label {
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .form-control,
+    .custom-select {
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        transition: all 0.2s ease;
+        background-color: var(--input-bg);
+    }
+
+    .form-control:focus,
+    .custom-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        background-color: #fff;
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: #94A3B8;
+    }
+
+    /* Button */
+    .btn-submit-orange {
+        background-color: var(--button-bg);
+        color: white;
+        font-weight: 700;
+        padding: 12px 36px;
+        font-size: 1.1rem;
+        border-radius: 50px; /* Pill shape */
+        border: none;
+        width: auto;
+        transition: all 0.2s ease;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 6px -1px rgba(243, 112, 33, 0.4);
+    }
+
+    .btn-submit-orange:hover {
+        background-color: var(--button-hover);
+        box-shadow: 0 6px 12px -2px rgba(243, 112, 33, 0.5);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .btn-submit-orange:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px -1px rgba(243, 112, 33, 0.4);
+    }
+
+    .required-asterisk {
+        color: #EF4444;
+        margin-left: 2px;
+    }
+
+    .india-specific {
+        background: var(--bg-color);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        margin-top: 15px;
+    }
+</style>
+
+<div class="registration-wrapper">
+    <div class="form-header">
+        <h2>Vendor Registration Form</h2>
+        <p>Complete the form below to register your business and join our elite network of global vendors.</p>
+    </div>
+
+
+
+    <form id="vendor-registration-form">
+
+        <!-- Company Information -->
+        <div class="form-card">
+            <h4 class="section-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Company Details
+            </h4>
+
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <label>GSTIN / UIN Number</label>
+                    <input type="text" class="form-control" name="gstin" placeholder="e.g. 29ABCDE1234F1Z5"
+                        maxlength="15" style="text-transform: uppercase;">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Company/Vendor Name <span class="required-asterisk">*</span></label>
+                    <input type="text" class="form-control" name="supplier_name" placeholder="E.g. Acme Corporation"
+                        required>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Vendor Group</label>
+                    <select class="form-control custom-select" name="supplier_group" id="supplier-group-select">
+                        <option value="All Supplier Groups">General / Other</option>
+                        <option value="Services">Services</option>
+                        <option value="Manpower Services">Manpower Services</option>
+                        <option value="Raw Material">Raw Material</option>
+                        <option value="Hardware">Hardware / IT</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dynamic Country Field -->
+            <div class="row mt-3">
+                <div class="col-md-6 form-group">
+                    <label>Country of Operation <span class="required-asterisk">*</span></label>
+                    <select class="form-control custom-select" name="country" id="country-select" required>
+                        <option value="India" selected>India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="United Arab Emirates">United Arab Emirates</option>
+                        <option value="Singapore">Singapore</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Germany">Germany</option>
+                        <option value="Other">Other (International)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 form-group" id="other-country-group" style="display: none;">
+                    <label>Specify Country <span class="required-asterisk">*</span></label>
+                    <input type="text" class="form-control" name="custom_country" id="custom-country"
+                        placeholder="Enter Country Name">
+                </div>
+            </div>
+
+            <!-- India Specific Details (Toggle via JS) -->
+            <div id="india-statutory-details" class="india-specific mt-3">
+                <h6 class="text-muted mb-3 font-weight-bold">India Statutory Details</h6>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>PAN Number</label>
+                        <input type="text" class="form-control" name="pan" placeholder="10-digit PAN (e.g. ABCDE1234F)"
+                            maxlength="10">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>GST Category</label>
+                        <select class="form-control custom-select" name="gst_category">
+                            <option value="Unregistered">Unregistered</option>
+                            <option value="Registered Regular">Registered Regular</option>
+                            <option value="Registered Composition">Registered Composition</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skill Set Table for Manpower Services -->
+            <div id="skill-set-section" class="india-specific mt-4"
+                style="display: none; background: #f0f4f8; border-color: #cbd5e1;">
+                <h6 class="text-primary mb-3 font-weight-bold">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round" class="mr-1"
+                        style="vertical-align: text-bottom;">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    Skill Set <span class="text-muted" style="font-weight: normal; font-size: 0.85rem;">(Required for
+                        Manpower Services)</span>
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm" id="skill-set-table" style="background: white;">
+                        <thead style="background-color: #e2e8f0; font-size: 0.85rem; color: #475569;">
+                            <tr>
+                                <th style="width: 5%; text-align: center;">No.</th>
+                                <th style="width: 35%;">Technology</th>
+                                <th style="width: 25%;">Experience Range</th>
+                                <th style="width: 25%;">Salary Range</th>
+                                <th style="width: 10%; text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows added dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary font-weight-bold" id="btn-add-skill-row">
+                    + Add Skill Row
+                </button>
+            </div>
+        </div>
+
+        <!-- Contact Person -->
+        <div class="form-card">
+            <h4 class="section-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Primary Contact Person
+            </h4>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>First Name <span class="required-asterisk">*</span></label>
+                    <input type="text" class="form-control" name="first_name" placeholder="John" required>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Last Name</label>
+                    <input type="text" class="form-control" name="last_name" placeholder="Doe">
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6 form-group">
+                    <label>Email Address <span class="required-asterisk">*</span></label>
+                    <input type="email" class="form-control" name="email_id" placeholder="john.doe@company.com"
+                        required>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Phone Number <span class="required-asterisk">*</span></label>
+                    <input type="tel" class="form-control" name="phone" placeholder="+1 234 567 8900" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Details -->
+        <div class="form-card">
+            <h4 class="section-title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Billing Address
+            </h4>
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <label>Address Line 1 <span class="required-asterisk">*</span></label>
+                    <input type="text" class="form-control" name="address_line1" placeholder="Building/Street Name"
+                        required>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12 form-group">
+                    <label>Address Line 2</label>
+                    <input type="text" class="form-control" name="address_line2"
+                        placeholder="Suite/Apt/Floor (Optional)">
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6 form-group">
+                    <label>City <span class="required-asterisk">*</span></label>
+                    <input type="text" class="form-control" name="city" placeholder="City Name" required>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>State / Province <span class="required-asterisk">*</span></label>
+                    <input type="text" class="form-control" name="state" placeholder="State/Province" required>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6 form-group">
+                    <label>Postal Code / Pincode <span class="required-asterisk">*</span></label>
+                    <input type="text" class="form-control" name="pincode" placeholder="ZIP/Postal Code" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 mb-5">
+            <button type="submit" class="btn btn-submit-orange shadow">Submit Registration</button>
+        </div>
+    </form>
+
+    <div id="form-message" class="mt-4"></div>
+</div>
+
+{% endblock %}
