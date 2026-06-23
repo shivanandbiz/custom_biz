@@ -69,14 +69,51 @@ def register_vendor(data):
             address.address_line2 = data.get("address_line2")
             address.city = data.get("city")
             address.state = data.get("state")
+            address.gst_state = data.get("state")
             address.country = data.get("country", "India")
             address.pincode = data.get("pincode")
+            
+            # Set Email and Phone directly on the Address
+            address.email_id = email_id
+            address.phone = data.get("phone")
+            
+            if data.get("preferred_billing_address"):
+                address.is_primary_address = 1
+            if data.get("preferred_shipping_address"):
+                address.is_shipping_address = 1
             
             if data.get("gstin"):
                 try:
                     address.gstin = data.get("gstin")
                 except Exception:
                     pass
+                    
+            if data.get("gst_category"):
+                try:
+                    address.gst_category = data.get("gst_category")
+                except Exception:
+                    pass
+                    
+            # Calculate and Set Tax Category based on State
+            company = frappe.db.get_single_value('Global Defaults', 'default_company')
+            if not company:
+                company = frappe.db.get_value("Company", filters=None, fieldname="name")
+            
+            company_state = ""
+            if company:
+                company_address_name = frappe.db.get_value("Dynamic Link", {"link_doctype": "Company", "link_name": company}, "parent")
+                if company_address_name:
+                    company_state = frappe.db.get_value("Address", company_address_name, "state")
+                    
+            if data.get("country", "India") == "India":
+                vendor_state = str(data.get("state") or "").strip().lower()
+                company_state_str = str(company_state or "").strip().lower()
+                
+                if vendor_state and company_state_str:
+                    if vendor_state == company_state_str:
+                        address.tax_category = "In-State"
+                    else:
+                        address.tax_category = "Out-State"
             
             # Link the Address to the new Supplier
             address.append("links", {
@@ -84,6 +121,12 @@ def register_vendor(data):
                 "link_name": supplier.name
             })
             address.save(ignore_permissions=True)
+            
+            # Set as primary address on Supplier if requested
+            if data.get("preferred_billing_address"):
+                supplier.supplier_primary_address = address.name
+                from frappe.contacts.doctype.address.address import get_address_display
+                supplier.primary_address = get_address_display(address.name)
             
         # 4. Handle Document Upload Attachment
         doc_base64 = data.get("vendor_document_base64")
@@ -135,8 +178,17 @@ def register_vendor(data):
             "link_name": supplier.name
         })
         contact.save(ignore_permissions=True)
+        
+        # Automatically set as primary contact and display fields
+        supplier.supplier_primary_contact = contact.name
+        supplier.email_id = email_id
+        supplier.mobile_no = phone
+        
+        # Save the supplier again so that Frappe triggers the 'set_primary_address' 
+        # and 'set_primary_contact' logic to generate the formatted HTML display texts.
+        supplier.save(ignore_permissions=True)
 
-        # 5. Commit the transaction
+        # 6. Commit the transaction
         frappe.db.commit()
         
         return {

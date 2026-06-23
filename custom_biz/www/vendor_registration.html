@@ -5,15 +5,19 @@
 {% block page_content %}
 <style>
     :root {
-        --primary-color: #1A4E8A; /* Dark blue */
+        --primary-color: #1A4E8A;
+        /* Dark blue */
         --primary-hover: #123866;
         --bg-color: #F4F7F6;
-        --card-bg: #EAF2F8; /* Light blue form background */
+        --card-bg: #EAF2F8;
+        /* Light blue form background */
         --text-main: #111827;
         --text-muted: #4B5563;
-        --border-color: #B5C4D3; /* Slightly darker border for inputs to match the visible borders */
+        --border-color: #B5C4D3;
+        /* Slightly darker border for inputs to match the visible borders */
         --input-bg: #FFFFFF;
-        --button-bg: #F37021; /* Orange */
+        --button-bg: #F37021;
+        /* Orange */
         --button-hover: #D95D1A;
     }
 
@@ -122,7 +126,8 @@
         font-weight: 700;
         padding: 12px 36px;
         font-size: 1.1rem;
-        border-radius: 50px; /* Pill shape */
+        border-radius: 50px;
+        /* Pill shape */
         border: none;
         width: auto;
         transition: all 0.2s ease;
@@ -203,8 +208,16 @@
                 </div>
             </div>
 
-            <!-- Dynamic Country Field -->
             <div class="row mt-3">
+                <div class="col-md-6 form-group">
+                    <label>Vendor Type <span class="required-asterisk">*</span></label>
+                    <select class="form-control custom-select" name="supplier_type" id="supplier-type-select" required>
+                        <option value="Company" selected>Company</option>
+                        <option value="Individual">Individual</option>
+                        <option value="Partnership">Partnership</option>
+                    </select>
+                </div>
+
                 <div class="col-md-6 form-group">
                     <label>Country of Operation <span class="required-asterisk">*</span></label>
                     <select class="form-control custom-select" name="country" id="country-select" required>
@@ -322,8 +335,22 @@
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                Billing Address
+                Primary Address Details
             </h4>
+            <div class="row mb-2">
+                <div class="col-md-6 form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="preferred-billing" name="preferred_billing_address" value="1">
+                        <label class="custom-control-label" for="preferred-billing" style="font-weight: 600; cursor: pointer;">Preferred Billing Address</label>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="preferred-shipping" name="preferred_shipping_address" value="1">
+                        <label class="custom-control-label" for="preferred-shipping" style="font-weight: 600; cursor: pointer;">Preferred Shipping Address</label>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label>Address Line 1 <span class="required-asterisk">*</span></label>
@@ -372,11 +399,13 @@
                 <div class="col-md-12 form-group">
                     <label>Upload Company Profile / Registration Document</label>
                     <div class="custom-file mt-2">
-                        <input type="file" class="custom-file-input" id="vendor-document-upload" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
-                        <label class="custom-file-label" for="vendor-document-upload" id="vendor-document-label">Choose file...</label>
+                        <input type="file" class="custom-file-input" id="vendor-document-upload"
+                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                        <label class="custom-file-label" for="vendor-document-upload" id="vendor-document-label">Choose
+                            file...</label>
                     </div>
                     <small class="form-text text-muted mt-2">Accepted formats: PDF, Word, PNG, JPG (Max 5MB).</small>
-                    
+
                     <!-- Hidden inputs to store base64 data for submission -->
                     <input type="hidden" name="vendor_document_base64" id="vendor_document_base64">
                     <input type="hidden" name="vendor_document_name" id="vendor_document_name">

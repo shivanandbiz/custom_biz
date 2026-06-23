@@ -21,6 +21,10 @@ app_license = "mit"
 # 	}
 # ]
 
+doctype_js = {
+    "Interview": "public/js/interview.js"
+}
+
 # Includes in <head>
 # ------------------
 

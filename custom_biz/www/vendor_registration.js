@@ -11,7 +11,11 @@ frappe.ready(function() {
         if (gstin.length === 15) {
             const pan = gstin.substring(2, 12);
             $('input[name="pan"]').val(pan).css('background-color', '#f0fdf4');
-            setTimeout(() => { $('input[name="pan"]').css('background-color', '#fcfcfc'); }, 1500);
+            $('select[name="gst_category"]').val('Registered Regular').css('background-color', '#f0fdf4');
+            setTimeout(() => { 
+                $('input[name="pan"]').css('background-color', '#fcfcfc'); 
+                $('select[name="gst_category"]').css('background-color', '#ffffff');
+            }, 1500);
         }
     });
 
@@ -128,6 +132,10 @@ frappe.ready(function() {
         $(this).serializeArray().forEach(item => {
             formData[item.name] = item.value;
         });
+        
+        // Handle explicit checkboxes
+        formData.preferred_billing_address = $('#preferred-billing').is(':checked') ? 1 : 0;
+        formData.preferred_shipping_address = $('#preferred-shipping').is(':checked') ? 1 : 0;
 
         // Gather Skill Set rows if Manpower Services
         if (formData.supplier_group === 'Manpower Services') {
