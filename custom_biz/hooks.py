@@ -28,13 +28,7 @@ doctype_js = {
 # Includes in <head>
 # ------------------
 
-# include js, css files in header of desk.html
-# app_include_css = "/assets/custom_biz/css/custom_biz.css"
-# app_include_js = "/assets/custom_biz/js/custom_biz.js"
-
-# include js, css files in header of web template
-# web_include_css = "/assets/custom_biz/css/custom_biz.css"
-# web_include_js = "/assets/custom_biz/js/custom_biz.js"
+app_include_js = "/assets/custom_biz/js/custom_biz.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "custom_biz/public/scss/website"
