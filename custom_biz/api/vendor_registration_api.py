@@ -11,6 +11,9 @@ def register_vendor(data):
     if isinstance(data, str):
         data = json.loads(data)
 
+    # Bypass permission checks globally for this guest API request
+    frappe.flags.ignore_permissions = True
+
     # 1. Extract and validate mandatory fields
     supplier_name = data.get("supplier_name")
     first_name = data.get("first_name")
