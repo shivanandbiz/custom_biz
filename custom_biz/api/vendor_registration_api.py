@@ -38,9 +38,9 @@ def register_vendor(data):
             except Exception:
                 pass
         
-        # Add Skill Set if IT/Non IT Staffing Service
+        # Add Skill Set if IT & Non-IT Staffing Services
         custom_skill_set = data.get("custom_skill_set")
-        if supplier.supplier_group == "IT/Non IT Staffing Service" and custom_skill_set and isinstance(custom_skill_set, list):
+        if supplier.supplier_group == "IT & Non-IT Staffing Services" and custom_skill_set and isinstance(custom_skill_set, list):
             for row in custom_skill_set:
                 tech = row.get("technology")
                 if tech:

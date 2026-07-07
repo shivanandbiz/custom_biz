@@ -23,7 +23,7 @@ frappe.ready(function() {
     // 2. Form UI Logic (Supplier Group & Country toggle)
     // ----------------------------------------------------
     $('#supplier-group-select').on('change', function() {
-        if ($(this).val() === 'IT/Non IT Staffing Service') {
+        if ($(this).val() === 'IT & Non-IT Staffing Services') {
             $('#skill-set-section').slideDown();
             // Add a default row if empty
             if ($('#skill-set-table tbody tr').length === 0) {
@@ -145,8 +145,8 @@ frappe.ready(function() {
         formData.preferred_billing_address = $('#preferred-billing').is(':checked') ? 1 : 0;
         formData.preferred_shipping_address = $('#preferred-shipping').is(':checked') ? 1 : 0;
 
-        // Gather Skill Set rows if IT/Non IT Staffing Service
-        if (formData.supplier_group === 'IT/Non IT Staffing Service') {
+        // Gather Skill Set rows if IT & Non-IT Staffing Services
+        if (formData.supplier_group === 'IT & Non-IT Staffing Services') {
             let skillSet = [];
             $('#skill-set-table tbody tr').each(function() {
                 let tech = $(this).find('.skill-tech').val();
