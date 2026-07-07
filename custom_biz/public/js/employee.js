@@ -18,5 +18,7 @@ function set_naming_series(frm) {
         frm.set_value('naming_series', 'ERP.####');
     } else if (frm.doc.company === 'BIZTECHNOSYS CMS PRIVATE LIMITED') {
         frm.set_value('naming_series', 'CMS.####');
+    } else if (frm.doc.company === 'BIZTECHNOSYS INFRATECH PVT LTD' || frm.doc.company === 'Biztechnosys Infratech Pvt Ltd') {
+        frm.set_value('naming_series', 'INF.####');
     }
 }

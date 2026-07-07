@@ -7,12 +7,12 @@
   "doctype_or_field": "DocField",
   "field_name": "naming_series",
   "is_system_generated": 1,
-  "modified": "2026-07-07 10:52:05.036919",
+  "modified": "2026-07-07 11:17:08.933352",
   "module": null,
   "name": "Employee-naming_series-options",
   "property": "options",
   "property_type": "Text",
   "row_name": null,
-  "value": "HR-EMP-\nBIZ.####\nCRM.####\nERP.####\nCMS.####"
+  "value": "HR-EMP-\nBIZ.####\nCRM.####\nERP.####\nCMS.####\nINF.####"
  }
 ]
