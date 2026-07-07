@@ -43,6 +43,19 @@ fixtures = [
                 ]
             ]
         ]
+    },
+    {
+        "dt": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Skill Set-location",
+                    "Skill Set-mode_of_support"
+                ]
+            ]
+        ]
     }
 ]
 

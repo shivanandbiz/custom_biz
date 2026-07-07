@@ -38,9 +38,9 @@ def register_vendor(data):
             except Exception:
                 pass
         
-        # Add Skill Set if Manpower Services
+        # Add Skill Set if IT/Non IT Staffing Service
         custom_skill_set = data.get("custom_skill_set")
-        if supplier.supplier_group == "Manpower Services" and custom_skill_set and isinstance(custom_skill_set, list):
+        if supplier.supplier_group == "IT/Non IT Staffing Service" and custom_skill_set and isinstance(custom_skill_set, list):
             for row in custom_skill_set:
                 tech = row.get("technology")
                 if tech:
@@ -54,7 +54,9 @@ def register_vendor(data):
                 supplier.append("custom_skill_set", {
                     "technology": tech,
                     "experience_range": row.get("experience_range"),
-                    "salary_range": row.get("salary_range")
+                    "salary_range": row.get("salary_range"),
+                    "location": row.get("location"),
+                    "mode_of_support": row.get("mode_of_support")
                 })
 
         # Save without permissions checking if called by a guest (unauthenticated web form)

@@ -23,7 +23,7 @@ frappe.ready(function() {
     // 2. Form UI Logic (Supplier Group & Country toggle)
     // ----------------------------------------------------
     $('#supplier-group-select').on('change', function() {
-        if ($(this).val() === 'Manpower Services') {
+        if ($(this).val() === 'IT/Non IT Staffing Service') {
             $('#skill-set-section').slideDown();
             // Add a default row if empty
             if ($('#skill-set-table tbody tr').length === 0) {
@@ -46,6 +46,14 @@ frappe.ready(function() {
                 <td><input type="text" class="form-control form-control-sm skill-tech" placeholder="e.g. Python, Java"></td>
                 <td><input type="text" class="form-control form-control-sm skill-exp" placeholder="e.g. 2-5 Years"></td>
                 <td><input type="text" class="form-control form-control-sm skill-sal" placeholder="e.g. 5L-10L"></td>
+                <td><input type="text" class="form-control form-control-sm skill-loc" placeholder="e.g. Bangalore"></td>
+                <td>
+                    <select class="form-control form-control-sm skill-mode">
+                        <option value="Onsite">Onsite</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Remote">Remote</option>
+                    </select>
+                </td>
                 <td class="text-center align-middle">
                     <button type="button" class="btn btn-sm btn-danger btn-remove-skill-row" title="Remove" style="padding: 2px 6px;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -137,8 +145,8 @@ frappe.ready(function() {
         formData.preferred_billing_address = $('#preferred-billing').is(':checked') ? 1 : 0;
         formData.preferred_shipping_address = $('#preferred-shipping').is(':checked') ? 1 : 0;
 
-        // Gather Skill Set rows if Manpower Services
-        if (formData.supplier_group === 'Manpower Services') {
+        // Gather Skill Set rows if IT/Non IT Staffing Service
+        if (formData.supplier_group === 'IT/Non IT Staffing Service') {
             let skillSet = [];
             $('#skill-set-table tbody tr').each(function() {
                 let tech = $(this).find('.skill-tech').val();
@@ -146,7 +154,9 @@ frappe.ready(function() {
                     skillSet.push({
                         technology: tech.trim(),
                         experience_range: $(this).find('.skill-exp').val().trim() || '',
-                        salary_range: $(this).find('.skill-sal').val().trim() || ''
+                        salary_range: $(this).find('.skill-sal').val().trim() || '',
+                        location: $(this).find('.skill-loc').val().trim() || '',
+                        mode_of_support: $(this).find('.skill-mode').val()
                     });
                 }
             });
