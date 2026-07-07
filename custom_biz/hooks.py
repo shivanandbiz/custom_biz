@@ -22,13 +22,29 @@ app_license = "mit"
 # ]
 
 doctype_js = {
-    "Interview": "public/js/interview.js"
+    "Interview": "public/js/interview.js",
+    "Employee": "public/js/employee.js"
 }
 
 # Includes in <head>
 # ------------------
 
 app_include_js = "/assets/custom_biz/js/custom_biz.js"
+
+fixtures = [
+    {
+        "dt": "Property Setter",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Employee-naming_series-options"
+                ]
+            ]
+        ]
+    }
+]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "custom_biz/public/scss/website"
