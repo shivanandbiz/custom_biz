@@ -99,35 +99,54 @@ frappe.ready(function() {
     // ----------------------------------------------------
     // 3. Document Upload Handling
     // ----------------------------------------------------
-    $('#vendor-document-upload').on('change', function(e) {
-        let file = e.target.files[0];
-        if (file) {
+    let vendorDocuments = [];
+    
+    $('#vendor-document-upload').on('change', async function(e) {
+        let files = e.target.files;
+        vendorDocuments = [];
+        $('#selected-files-container').empty();
+        
+        if (files && files.length > 0) {
             // Update label
-            $('#vendor-document-label').text(file.name);
-            $('#vendor_document_name').val(file.name);
+            $('#vendor-document-label').text(files.length + ' file(s) selected');
             
-            // Validate size (5MB max)
-            if (file.size > 5 * 1024 * 1024) {
-                frappe.msgprint({title: 'File too large', indicator: 'red', message: 'Maximum allowed file size is 5MB.'});
-                $(this).val('');
-                $('#vendor-document-label').text('Choose file...');
-                $('#vendor_document_name').val('');
-                $('#vendor_document_base64').val('');
-                return;
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                
+                // Validate size (5MB max per file)
+                if (file.size > 5 * 1024 * 1024) {
+                    frappe.msgprint({title: 'File too large', indicator: 'red', message: `File ${file.name} exceeds 5MB limit.`});
+                    continue;
+                }
+                
+                // Add a pill to the UI
+                $('#selected-files-container').append(`
+                    <span class="badge badge-primary mr-2 mb-2 p-2" style="font-size: 0.85rem; font-weight: 500;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                        ${file.name}
+                    </span>
+                `);
+                
+                // Read as base64
+                let base64String = await readAsBase64(file);
+                vendorDocuments.push({
+                    name: file.name,
+                    base64: base64String
+                });
             }
-
-            // Read file as Base64 Data URL
-            let reader = new FileReader();
-            reader.onload = function(event) {
-                $('#vendor_document_base64').val(event.target.result);
-            };
-            reader.readAsDataURL(file);
         } else {
-            $('#vendor-document-label').text('Choose file...');
-            $('#vendor_document_name').val('');
-            $('#vendor_document_base64').val('');
+            $('#vendor-document-label').text('Choose files...');
         }
     });
+
+    function readAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            let reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
 
     // ----------------------------------------------------
     // 3. Form Submission Logic
@@ -144,6 +163,9 @@ frappe.ready(function() {
         // Handle explicit checkboxes
         formData.preferred_billing_address = $('#preferred-billing').is(':checked') ? 1 : 0;
         formData.preferred_shipping_address = $('#preferred-shipping').is(':checked') ? 1 : 0;
+        
+        // Attach multiple uploaded documents
+        formData.vendor_documents = vendorDocuments;
 
         // Gather Skill Set rows if IT & Non-IT Staffing Services
         if (formData.supplier_group === 'IT & Non-IT Staffing Services') {
@@ -199,9 +221,13 @@ frappe.ready(function() {
                     $('#fetch-gstin-input').val('');
                     $('#gstin-feedback').html('');
                     
+                    $('#vendor-document-label').text('Choose files...');
+                    $('#selected-files-container').empty();
+                    vendorDocuments = [];
+                    
                     // reset toggles
                     $('#country-select').trigger('change');
-
+                    
                     $('#form-message').html(
                         `<div class="alert alert-success d-flex align-items-center shadow-sm" style="border-left: 5px solid #28a745; padding: 20px;">
                             <div style="margin-right: 15px;">

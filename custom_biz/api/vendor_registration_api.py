@@ -130,29 +130,33 @@ def register_vendor(data):
                 from frappe.contacts.doctype.address.address import get_address_display
                 supplier.primary_address = get_address_display(address.name)
             
-        # 4. Handle Document Upload Attachment
-        doc_base64 = data.get("vendor_document_base64")
-        doc_name = data.get("vendor_document_name")
-        if doc_base64 and doc_name:
+        # 4. Handle Document Upload Attachments
+        vendor_documents = data.get("vendor_documents")
+        if vendor_documents and isinstance(vendor_documents, list):
             import base64
             from frappe.utils.file_manager import save_file
             
-            # Clean base64 string
-            if "," in doc_base64:
-                doc_base64 = doc_base64.split(",")[1]
-            
-            try:
-                file_bytes = base64.b64decode(doc_base64)
-                save_file(
-                    fname=doc_name,
-                    content=file_bytes,
-                    dt="Supplier",
-                    dn=supplier.name,
-                    is_private=1,
-                    folder="Home/Attachments"
-                )
-            except Exception as e:
-                frappe.log_error(f"Vendor Registration File Upload Error: {str(e)}", "Vendor Registration")
+            for doc in vendor_documents:
+                doc_base64 = doc.get("base64")
+                doc_name = doc.get("name")
+                
+                if doc_base64 and doc_name:
+                    # Clean base64 string
+                    if "," in doc_base64:
+                        doc_base64 = doc_base64.split(",")[1]
+                    
+                    try:
+                        file_bytes = base64.b64decode(doc_base64)
+                        save_file(
+                            fname=doc_name,
+                            content=file_bytes,
+                            dt="Supplier",
+                            dn=supplier.name,
+                            is_private=1,
+                            folder="Home/Attachments"
+                        )
+                    except Exception as e:
+                        frappe.log_error(f"Vendor Registration File Upload Error ({doc_name}): {str(e)}", "Vendor Registration")
 
         # 5. Create the Contact Document
         contact = frappe.new_doc("Contact")

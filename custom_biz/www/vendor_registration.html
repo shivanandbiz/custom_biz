@@ -399,18 +399,17 @@
             </h4>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <label>Upload Company Profile / Registration Document</label>
+                    <label>Upload Company Profile / Registration Document(s)</label>
                     <div class="custom-file mt-2">
                         <input type="file" class="custom-file-input" id="vendor-document-upload"
-                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" multiple>
                         <label class="custom-file-label" for="vendor-document-upload" id="vendor-document-label">Choose
-                            file...</label>
+                            files...</label>
                     </div>
-                    <small class="form-text text-muted mt-2">Accepted formats: PDF, Word, PNG, JPG (Max 5MB).</small>
+                    <small class="form-text text-muted mt-2">Accepted formats: PDF, Word, PNG, JPG (Max 5MB per file).</small>
 
-                    <!-- Hidden inputs to store base64 data for submission -->
-                    <input type="hidden" name="vendor_document_base64" id="vendor_document_base64">
-                    <input type="hidden" name="vendor_document_name" id="vendor_document_name">
+                    <!-- Container to display selected files -->
+                    <div id="selected-files-container" class="mt-3"></div>
                 </div>
             </div>
         </div>
