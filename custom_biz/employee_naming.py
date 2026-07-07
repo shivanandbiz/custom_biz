@@ -25,7 +25,8 @@ def employee_autoname(doc, method):
             
             # Ensure the Series table is up to date
             series_name = doc.naming_series.split('.')[0] + '.'
-            current_series = frappe.db.get_value("Series", series_name, "current") or 0
+            current_series = frappe.db.sql("SELECT current FROM `tabSeries` WHERE name = %s", series_name)
+            current_series = current_series[0][0] if current_series else 0
             
             if current_series < num:
                 # Update series table to the highest existing number
