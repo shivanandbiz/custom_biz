@@ -85,14 +85,22 @@ frappe.ready(function() {
             $('#custom-country').prop('required', false);
         }
 
-        // Show/hide India Statutory details
+        // Show/hide India Statutory details and State Select
         if (country === 'India') {
             $('#india-statutory-details').slideDown();
+            
+            // Switch to State Select
+            $('#state-select').show().prop('required', true).prop('disabled', false);
+            $('#custom-state').hide().prop('required', false).prop('disabled', true);
         } else {
             $('#india-statutory-details').slideUp();
             // Clear India specific values if changed away from India
             $('input[name="pan"]').val('');
             $('select[name="gst_category"]').val('Unregistered');
+            
+            // Switch to Custom State Text Input
+            $('#state-select').hide().prop('required', false).prop('disabled', true);
+            $('#custom-state').show().prop('required', true).prop('disabled', false);
         }
     });
 
