@@ -14,9 +14,7 @@ def sales_invoice_autoname(doc, method):
     else:
         fy = f"{year-1}-{year}"
         
-    # Get the company abbreviation to ensure the name is unique in the database
-    company_abbr = frappe.db.get_value("Company", doc.company, "abbr")
-    prefix = f"INV{fy}-{company_abbr}-"
+    prefix = f"INV{fy}"
     
-    # Generate the autoname, make_autoname handles series creation and incrementing per company
+    # Generate the autoname, make_autoname handles series creation and incrementing
     doc.name = make_autoname(f"{prefix}.###")
