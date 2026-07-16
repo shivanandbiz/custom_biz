@@ -167,6 +167,9 @@ fixtures = [
 doc_events = {
 	"Employee": {
 		"autoname": "custom_biz.employee_naming.employee_autoname"
+	},
+	"Sales Invoice": {
+		"autoname": "custom_biz.sales_invoice_naming.sales_invoice_autoname"
 	}
 }
 
