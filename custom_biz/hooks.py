@@ -152,6 +152,14 @@ fixtures = [
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
+permission_query_conditions = {
+	"Salary Slip": "custom_biz.salary_slip_permission.get_permission_query_conditions",
+}
+
+has_permission = {
+	"Salary Slip": "custom_biz.salary_slip_permission.has_permission",
+}
+
 # DocType Class
 # ---------------
 # Override standard doctype classes
