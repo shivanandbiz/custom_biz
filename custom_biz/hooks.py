@@ -154,10 +154,12 @@ fixtures = [
 
 permission_query_conditions = {
 	"Salary Slip": "custom_biz.salary_slip_permission.get_permission_query_conditions",
+	"File": "custom_biz.file_management.file_permission_query_conditions"
 }
 
 has_permission = {
 	"Salary Slip": "custom_biz.salary_slip_permission.has_permission",
+	"File": "custom_biz.file_management.file_has_permission"
 }
 
 # DocType Class
@@ -178,6 +180,9 @@ doc_events = {
 	},
 	"Sales Invoice": {
 		"autoname": "custom_biz.sales_invoice_naming.sales_invoice_autoname"
+	},
+	"File": {
+		"before_insert": "custom_biz.file_management.file_before_insert"
 	}
 }
 
