@@ -55,7 +55,7 @@ def file_permission_query_conditions(user):
     employee_name = frappe.db.get_value("Employee", {"user_id": user}, "employee_name")
     if employee_name:
         my_folder = f"Home/{employee_name}"
-        return f"(`tabFile`.is_private = 0 OR `tabFile`.owner = {frappe.db.escape(user)} OR `tabFile`.folder = {frappe.db.escape(my_folder)})"
+        return f"(`tabFile`.is_private = 0 OR `tabFile`.owner = {frappe.db.escape(user)} OR `tabFile`.folder = {frappe.db.escape(my_folder)} OR `tabFile`.name = {frappe.db.escape(my_folder)})"
         
     # Restrict users to only see public files or files they uploaded
     return f"(`tabFile`.is_private = 0 OR `tabFile`.owner = {frappe.db.escape(user)})"
@@ -80,8 +80,10 @@ def file_has_permission(doc, ptype, user):
         return None # Fallback to standard permissions for their own files
         
     employee_name = frappe.db.get_value("Employee", {"user_id": user}, "employee_name")
-    if employee_name and doc.folder == f"Home/{employee_name}":
-        return None # Fallback to standard permissions for files in their own folder
+    if employee_name:
+        my_folder = f"Home/{employee_name}"
+        if doc.folder == my_folder or doc.name == my_folder:
+            return None # Fallback to standard permissions for files in their own folder (and the folder itself)
         
     # Explicitly deny access to private files not owned by them
     return False
