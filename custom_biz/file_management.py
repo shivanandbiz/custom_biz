@@ -79,7 +79,7 @@ def file_has_permission(doc, ptype, user):
     if employee_name:
         my_folder = f"Home/{employee_name}"
         if doc.folder == my_folder or doc.name == my_folder:
-            return None # Fallback to standard permissions for files in their own folder (and the folder itself)
+            return True # Explicitly ALLOW access for files in their own folder (and the folder itself)
         
     # Explicitly deny access to private files not owned by them
     return False
