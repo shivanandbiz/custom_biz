@@ -56,6 +56,20 @@ fixtures = [
                 ]
             ]
         ]
+    },
+    {
+        "dt": "DocType",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Vendor Registration",
+                    "Vendor POC",
+                    "Vendor HR Skill"
+                ]
+            ]
+        ]
     }
 ]
 
