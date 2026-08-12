@@ -1,232 +1,165 @@
 import frappe
-from frappe import _
+from frappe.model.mapper import get_mapped_doc
 import json
 
-@frappe.whitelist(allow_guest=True)
-def register_vendor(data):
-    """
-    API endpoint to register a vendor and create Supplier, Address, and Contact records.
-    `data` should be a JSON string or dictionary containing the form fields.
-    """
-    if isinstance(data, str):
-        data = json.loads(data)
-
-    # Bypass permission checks globally for this guest API request
-    frappe.flags.ignore_permissions = True
-
-    # 1. Extract and validate mandatory fields
-    supplier_name = data.get("supplier_name")
-    first_name = data.get("first_name")
-    email_id = data.get("email_id")
+def on_submit(doc, method):
+    # This is triggered when the Vendor Registration is Approved (Submitted)
+    supplier = frappe.new_doc("Supplier")
+    supplier.supplier_name = doc.company_vendor_name
+    supplier.supplier_group = doc.vendor_category if frappe.db.exists("Supplier Group", doc.vendor_category) else "All Supplier Groups"
+    supplier.supplier_type = doc.vendor_type
+    supplier.country = doc.country_of_operation
     
-    if not supplier_name:
-        frappe.throw(_("Company/Vendor Name is mandatory"))
-    if not first_name:
-        frappe.throw(_("Contact First Name is mandatory"))
-    if not email_id:
-        frappe.throw(_("Email ID is mandatory"))
+    # Specifics for India
+    if doc.country_of_operation == "India":
+        supplier.pan = doc.pan_number
+        if doc.gst_category:
+            supplier.gst_category = doc.gst_category
+            
+    supplier.insert(ignore_permissions=True)
+    
+    # Create Primary Address
+    primary_address_name = None
+    if doc.billing_address_line_1 or doc.billing_city:
+        address = frappe.new_doc("Address")
+        address.address_title = doc.company_vendor_name
+        address.address_type = "Billing"
+        address.address_line1 = doc.billing_address_line_1
+        address.address_line2 = doc.billing_address_line_2
+        address.city = doc.billing_city
+        address.state = doc.billing_state
+        address.pincode = doc.billing_postal_code
+        address.country = doc.billing_country
+        address.is_primary_address = 1
+        if doc.same_as_billing_address:
+            address.is_shipping_address = 1
         
-    try:
-        # 2. Create the Supplier Document
-        supplier = frappe.new_doc("Supplier")
-        supplier.supplier_name = supplier_name
-        supplier.supplier_group = data.get("supplier_group", "All Supplier Groups")
-        supplier.supplier_type = data.get("supplier_type", "Company")
-        supplier.pan = data.get("pan")
-        
-        if data.get("gstin"):
-            # Try setting gstin on supplier if the field exists
-            try:
-                supplier.gstin = data.get("gstin")
-            except Exception:
-                pass
-        
-        # Add Skill Set if IT & Non-IT Staffing Services
-        custom_skill_set = data.get("custom_skill_set")
-        if supplier.supplier_group == "IT & Non-IT Staffing Services" and custom_skill_set and isinstance(custom_skill_set, list):
-            for row in custom_skill_set:
-                tech = row.get("technology")
-                if tech:
-                    # Check if Skill exists, if not create it
-                    if not frappe.db.exists("Skill", tech):
-                        try:
-                            frappe.get_doc({"doctype": "Skill", "skill_name": tech}).insert(ignore_permissions=True)
-                        except Exception:
-                            pass # If it fails, ignore
-                
-                supplier.append("custom_skill_set", {
-                    "technology": tech,
-                    "experience_range": row.get("experience_range"),
-                    "salary_range": row.get("salary_range"),
-                    "location": row.get("location"),
-                    "mode_of_support": row.get("mode_of_support")
-                })
-
-        # Save without permissions checking if called by a guest (unauthenticated web form)
-        supplier.save(ignore_permissions=True)
-        
-        # 3. Create the Address Document
-        if data.get("address_line1") and data.get("city"):
-            address = frappe.new_doc("Address")
-            address.address_title = supplier_name
-            address.address_type = "Billing"
-            address.address_line1 = data.get("address_line1")
-            address.address_line2 = data.get("address_line2")
-            address.city = data.get("city")
-            address.state = data.get("state")
-            address.gst_state = data.get("state")
-            address.country = data.get("country", "India")
-            address.pincode = data.get("pincode")
-            
-            # Set Email and Phone directly on the Address
-            address.email_id = email_id
-            address.phone = data.get("phone")
-            
-            if data.get("preferred_billing_address"):
-                address.is_primary_address = 1
-            if data.get("preferred_shipping_address"):
-                address.is_shipping_address = 1
-            
-            if data.get("gstin"):
-                try:
-                    address.gstin = data.get("gstin")
-                except Exception:
-                    pass
-                    
-            if data.get("gst_category"):
-                try:
-                    address.gst_category = data.get("gst_category")
-                except Exception:
-                    pass
-                    
-            # Calculate and Set Tax Category based on State
-            company = frappe.db.get_single_value('Global Defaults', 'default_company')
-            if not company:
-                company = frappe.db.get_value("Company", filters=None, fieldname="name")
-            
-            company_state = ""
-            if company:
-                company_address_name = frappe.db.get_value("Dynamic Link", {"link_doctype": "Company", "link_name": company}, "parent")
-                if company_address_name:
-                    company_state = frappe.db.get_value("Address", company_address_name, "state")
-                    
-            if data.get("country", "India") == "India":
-                vendor_state = str(data.get("state") or "").strip().lower()
-                company_state_str = str(company_state or "").strip().lower()
-                
-                if vendor_state and company_state_str:
-                    if vendor_state == company_state_str:
-                        address.tax_category = "In-State"
-                    else:
-                        address.tax_category = "Out-State"
-            
-            # Link the Address to the new Supplier
-            address.append("links", {
-                "link_doctype": "Supplier",
-                "link_name": supplier.name
-            })
-            address.save(ignore_permissions=True)
-            
-            # Set as primary address on Supplier if requested
-            if data.get("preferred_billing_address"):
-                supplier.supplier_primary_address = address.name
-                from frappe.contacts.doctype.address.address import get_address_display
-                supplier.primary_address = get_address_display(address.name)
-            
-        # 4. Handle Document Upload Attachments
-        vendor_documents = data.get("vendor_documents")
-        if vendor_documents and isinstance(vendor_documents, list):
-            import base64
-            from frappe.utils.file_manager import save_file
-            
-            for doc in vendor_documents:
-                doc_base64 = doc.get("base64")
-                doc_name = doc.get("name")
-                
-                if doc_base64 and doc_name:
-                    # Clean base64 string
-                    if "," in doc_base64:
-                        doc_base64 = doc_base64.split(",")[1]
-                    
-                    try:
-                        file_bytes = base64.b64decode(doc_base64)
-                        save_file(
-                            fname=doc_name,
-                            content=file_bytes,
-                            dt="Supplier",
-                            dn=supplier.name,
-                            is_private=1,
-                            folder="Home/Attachments"
-                        )
-                    except Exception as e:
-                        frappe.log_error(f"Vendor Registration File Upload Error ({doc_name}): {str(e)}", "Vendor Registration")
-
-        # 5. Create the Contact Document
-        contact = frappe.new_doc("Contact")
-        contact.first_name = first_name
-        contact.last_name = data.get("last_name")
-        contact.is_primary_contact = 1
-        
-        # Add email
-        contact.append("email_ids", {
-            "email_id": email_id,
-            "is_primary": 1
+        # Link Address to Supplier
+        address.append("links", {
+            "link_doctype": "Supplier",
+            "link_name": supplier.name
         })
         
-        # Add phone
-        phone = data.get("phone")
-        if phone:
-            contact.append("phone_nos", {
-                "phone": phone,
-                "is_primary_phone": 1
-            })
+        if doc.gstin_uin_number:
+            address.gstin = doc.gstin_uin_number
             
-        # Link the Contact to the new Supplier
+        address.insert(ignore_permissions=True)
+        primary_address_name = address.name
+        supplier.db_set("supplier_primary_address", primary_address_name)
+
+    # Shipping Address if different
+    if not doc.same_as_billing_address and (doc.shipping_address_line_1 or doc.shipping_city):
+        ship_addr = frappe.new_doc("Address")
+        ship_addr.address_title = doc.company_vendor_name + " - Shipping"
+        ship_addr.address_type = "Shipping"
+        ship_addr.address_line1 = doc.shipping_address_line_1
+        ship_addr.address_line2 = doc.shipping_address_line_2
+        ship_addr.city = doc.shipping_city
+        ship_addr.state = doc.shipping_state
+        ship_addr.pincode = doc.shipping_postal_code
+        ship_addr.country = doc.shipping_country
+        ship_addr.is_shipping_address = 1
+        ship_addr.append("links", {
+            "link_doctype": "Supplier",
+            "link_name": supplier.name
+        })
+        ship_addr.insert(ignore_permissions=True)
+
+    # Create Primary Contacts
+    primary_contact_name = None
+    first_contact_name = None
+    for poc in doc.get("poc_details", []):
+        contact = frappe.new_doc("Contact")
+        contact.first_name = poc.first_name
+        contact.last_name = poc.last_name
+        contact.designation = poc.designation
+        contact.append("email_ids", {
+            "email_id": poc.email_address,
+            "is_primary": 1
+        })
+        contact.append("phone_nos", {
+            "phone": poc.phone_number,
+            "is_primary_phone": 1
+        })
+        if poc.get("poc_type"):
+            contact.department = poc.poc_type
+        if poc.get("is_primary"):
+            contact.is_primary_contact = 1
+        
+        # Link Contact to Supplier
         contact.append("links", {
             "link_doctype": "Supplier",
             "link_name": supplier.name
         })
-        contact.save(ignore_permissions=True)
         
-        # Automatically set as primary contact and display fields
-        supplier.supplier_primary_contact = contact.name
-        supplier.email_id = email_id
-        supplier.mobile_no = phone
+        contact.insert(ignore_permissions=True)
+        if not first_contact_name:
+            first_contact_name = contact.name
+        if poc.get("is_primary") and not primary_contact_name:
+            primary_contact_name = contact.name
+            
+    if not primary_contact_name and first_contact_name:
+        primary_contact_name = first_contact_name
         
-        # Save the supplier again so that Frappe triggers the 'set_primary_address' 
-        # and 'set_primary_contact' logic to generate the formatted HTML display texts.
-        supplier.save(ignore_permissions=True)
+    if primary_contact_name:
+        supplier.db_set("supplier_primary_contact", primary_contact_name)
+        
+    # Also add Bank Details if applicable
+    if doc.bank_name and doc.account_number:
+        # Check if Bank exists, if not create it
+        if not frappe.db.exists("Bank", doc.bank_name):
+            bank = frappe.new_doc("Bank")
+            bank.bank_name = doc.bank_name
+            bank.insert(ignore_permissions=True)
+            
+        # Bank Account creation
+        bank_account = frappe.new_doc("Bank Account")
+        bank_account.party_type = "Supplier"
+        bank_account.party = supplier.name
+        bank_account.bank = doc.bank_name
+        bank_account.bank_account_no = doc.account_number
+        bank_account.account_name = doc.account_holder_name
+        bank_account.branch_code = doc.ifsc_code or doc.swift_iban
+        bank_account.is_default = 1
+        bank_account.insert(ignore_permissions=True)
+        
+    frappe.msgprint(f"Supplier {supplier.name} has been successfully created.")
 
-        # 6. Commit the transaction
+@frappe.whitelist(allow_guest=True)
+def submit_vendor_registration(data):
+    try:
+        doc_data = json.loads(data)
+        doc_data["doctype"] = "Vendor Registration"
+        
+        # If the user expects it to instantly submit and create supplier, we set docstatus=1.
+        # But usually we just insert as draft. Let's insert as submitted so the on_submit hook fires.
+        doc_data["docstatus"] = 1
+        
+        doc = frappe.get_doc(doc_data)
+        doc.insert(ignore_permissions=True)
+        # doc.submit() is not needed since docstatus=1 is set before insert in Frappe? No, insert() sets it to 0 if we don't call submit().
+        # Actually, let's call doc.submit() instead to properly trigger on_submit hooks.
+        
+        if hasattr(frappe.request, 'files') and frappe.request.files:
+            for fieldname, file_storage in frappe.request.files.items():
+                if fieldname.startswith('file_') and file_storage.filename:
+                    file_content = file_storage.read()
+                    file_doc = frappe.get_doc({
+                        "doctype": "File",
+                        "file_name": file_storage.filename,
+                        "content": file_content,
+                        "attached_to_doctype": doc.doctype,
+                        "attached_to_name": doc.name,
+                        "is_private": 1
+                    })
+                    file_doc.insert(ignore_permissions=True)
+
+        doc.submit()
+
         frappe.db.commit()
         
-        return {
-            "status": "success",
-            "message": _("Vendor registered successfully!"),
-            "supplier_id": supplier.name
-        }
-        
+        return {"status": "success", "message": "Registration submitted successfully!", "name": doc.name}
     except Exception as e:
         frappe.db.rollback()
-        frappe.log_error(frappe.get_traceback(), "Vendor Registration Error")
-        return {
-            "status": "error",
-            "message": str(e)
-        }
-
-import frappe
-def create_page():
-    if not frappe.db.exists("Page", "SmartHR Admin Dashboard"):
-        doc = frappe.get_doc({
-            "doctype": "Page",
-            "page_name": "SmartHR Admin Dashboard",
-            "title": "SmartHR Admin Dashboard",
-            "module": "Custom Biz",
-            "standard": "Yes",
-            "roles": [{"role": "System Manager"}]
-        })
-        doc.insert(ignore_permissions=True)
-        frappe.db.commit()
-        print("Page created successfully")
-    else:
-        print("Page already exists")
+        frappe.log_error(title="Vendor Registration Error", message=str(e) + "\n" + frappe.get_traceback())
+        return {"status": "error", "message": str(e)}

@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Registration Form</title>
+    <script>
+        window.csrf_token = "{{ frappe.session.csrf_token }}";
+    </script>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .paper-container {
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 50px;
+        }
+
+        .doc-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .doc-header .subtitle {
+            color: #666;
+            font-size: 13px;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .doc-header h2 {
+            color: #1a365d;
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+
+        .doc-header h1 {
+            color: #1a365d;
+            font-size: 32px;
+            margin: 0 0 10px 0;
+        }
+
+        .doc-header .orange-text {
+            color: #e65100;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .doc-header .desc {
+            font-size: 12px;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            background-color: #1a365d;
+            color: white;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .section-header .num {
+            background-color: #e65100;
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .grid-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .grid-col {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a365d;
+            margin-bottom: 5px;
+        }
+
+        .form-group label .req {
+            color: #e65100;
+        }
+
+        .form-group .hint {
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 0;
+            font-size: 14px;
+            background: transparent;
+            outline: none;
+            color: #333;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+            border-bottom: 2px solid #1a365d;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .checkbox-item input {
+            margin-right: 8px;
+        }
+
+        /* Responsive Grid for checkboxes */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* HR Skills Table */
+        .hr-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+        .hr-table th, .hr-table td {
+            border: 1px solid #c4cdd5;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .hr-table th {
+            background-color: #1a365d;
+            color: white;
+            font-weight: 600;
+        }
+        .hr-table tr:nth-child(even) {
+            background-color: #eef2f5;
+        }
+        .hr-table input {
+            width: 100%;
+            border: none !important;
+            background: transparent !important;
+            padding: 4px 0 !important;
+            box-shadow: none !important;
+        }
+        .hr-table input:focus {
+            border-bottom: 1px solid #1a365d !important;
+        }
+
+        .btn-submit {
+            background-color: #1a365d;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            background-color: #e65100;
+        }
+
+        #dynamic-sections > div {
+            display: none;
+        }
+        
+        .alert {
+            padding: 15px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="paper-container">
+    <div id="alert-msg" class="alert"></div>
+
+    <form id="vendor-form">
+        <div class="doc-header">
+            <div class="subtitle">Biztechnosys Infotech Pvt Ltd — Vendor Registration Form</div>
+            <h2>BIZTECHNOSYS INFOTECH PVT LTD</h2>
+            <h1>VENDOR REGISTRATION FORM</h1>
+            <div class="orange-text">All Vendor Categories | Domestic (India) & International Vendors</div>
+            <div class="desc">Please complete every section below. Sections marked with * are mandatory. Complete only the ONE category block in Step 2 that matches your business.</div>
+        </div>
+
+        <!-- SECTION 1 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="num">1</div>
+                <div>VENDOR CATEGORY & VENDOR TYPE</div>
+            </div>
+            
+            <p style="font-size: 13px; font-style: italic; color: #555; margin-bottom: 15px;">Select ONE vendor category that best describes your business. This determines which Step 2 section you should complete.</p>
+            
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Vendor Group / Category <span class="req">*</span></label>
+                        <select name="vendor_category" id="vendor-category-select" required>
+                            <option value="">Select Category</option>
+                            <option value="HR / Staffing Partner">HR / Staffing Partner (IT & Non-IT Staffing Services)</option>
+                            <option value="Travel Vendor">Travel Vendor</option>
+                            <option value="UPS / Power Backup Vendor">UPS / Power Backup Vendor</option>
+                            <option value="Water & Utility Vendor">Water & Utility Vendor</option>
+                            <option value="Job Portal / Recruitment Platform">Job Portal / Recruitment Platform</option>
+                            <option value="Furniture Vendor">Furniture Vendor</option>
+                            <option value="IT Hardware & Software Vendor">IT Hardware & Software Vendor</option>
+                            <option value="Individual Contractor / Consultant">Individual Contractor / Consultant</option>
+                            <option value="General / Other">General / Other (Raw Material, Services)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Vendor Type <span class="req">*</span></label>
+                        <select name="vendor_type" required>
+                            <option value="">Select Type</option>
+                            <option value="Company">Company</option>
+                            <option value="Individual">Individual</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+<!-- SECTION 7: CATEGORY SPECIFIC -->
+        <div class="section" id="section-7">
+            <div class="section-header">
+                <div class="num">2</div>
+                <div>CATEGORY-SPECIFIC DETAILS</div>
+            </div>
+            
+            <p style="font-size: 13px; font-style: italic; color: #555; margin-bottom: 20px;">Complete ONLY the block matching the category ticked in Step 1. Leave the other blocks blank.</p>
+            
+            <div id="dynamic-sections">
+                <div id="cat-hr" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2A — HR / Staffing Partner</h4>
+                    
+                    <table class="hr-table" id="hr-skill-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%; text-align: center;">No.</th>
+                                <th style="width: 25%;">Technology / Skill</th>
+                                <th style="width: 15%;">Experience Range</th>
+                                <th style="width: 20%;">Salary Range</th>
+                                <th style="width: 15%;">Location</th>
+                                <th style="width: 15%;">Mode of Support</th>
+                                <th style="width: 5%; text-align: center;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="hr-tbody">
+                            <tr style="background-color: #f0f4f8;">
+                                <td style="text-align: center;" class="hr-row-num">1</td>
+                                <td><input type="text" name="hr_tech[]"></td>
+                                <td><input type="text" name="hr_exp[]"></td>
+                                <td><input type="text" name="hr_sal[]"></td>
+                                <td><input type="text" name="hr_loc[]"></td>
+                                <td><input type="text" name="hr_mode[]"></td>
+                                <td style="text-align: center;"><button type="button" onclick="removeHrRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="text-align: center;" class="hr-row-num">2</td>
+                                <td><input type="text" name="hr_tech[]"></td>
+                                <td><input type="text" name="hr_exp[]"></td>
+                                <td><input type="text" name="hr_sal[]"></td>
+                                <td><input type="text" name="hr_loc[]"></td>
+                                <td><input type="text" name="hr_mode[]"></td>
+                                <td style="text-align: center;"><button type="button" onclick="removeHrRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+                            </tr>
+                            <tr style="background-color: #f0f4f8;">
+                                <td style="text-align: center;" class="hr-row-num">3</td>
+                                <td><input type="text" name="hr_tech[]"></td>
+                                <td><input type="text" name="hr_exp[]"></td>
+                                <td><input type="text" name="hr_sal[]"></td>
+                                <td><input type="text" name="hr_loc[]"></td>
+                                <td><input type="text" name="hr_mode[]"></td>
+                                <td style="text-align: center;"><button type="button" onclick="removeHrRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                        <button type="button" onclick="addHrRow()" style="background-color: #f0f0f0; border: 1px solid #ccc; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-size: 13px;">+ Add Row</button>
+                    </div>
+
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox" name="it_staffing" value="1"> IT Staffing</label>
+                        <label class="checkbox-item"><input type="checkbox" name="non_it_staffing" value="1"> Non-IT Staffing</label>
+                        <label class="checkbox-item"><input type="checkbox" name="both_staffing" value="1"> Both</label>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-col">
+                            <div class="form-group"><label>Bulk Hiring Capacity (per month)</label><input type="number" name="bulk_hiring_capacity"></div>
+                        </div>
+                        <div class="grid-col">
+                            <div class="form-group"><label>Standard Notice Period Support</label><input type="text" name="standard_notice_period"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cat-travel" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2B — Travel Vendor</h4>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox" name="visa_assistance" value="1"> Visa Assistance</label>
+                        <label class="checkbox-item"><input type="checkbox" name="air_rail_ticketing" value="1"> Air / Rail Ticketing</label>
+                        <label class="checkbox-item"><input type="checkbox" name="cab_transport" value="1"> Cab & Transport</label>
+                        <label class="checkbox-item"><input type="checkbox" name="support_24x7" value="1"> 24x7 Support</label>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-col"><div class="form-group"><label>IATA Accreditation No. (if any)</label><input type="text" name="iata_accreditation_no"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Fleet Size & Cab Categories</label><input type="text" name="fleet_size_categories"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Cities / Regions Serviced</label><input type="text" name="cities_serviced"></div></div>
+                    </div>
+                </div>
+
+                <div id="cat-ups" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2C — UPS / Power Backup Vendor</h4>
+                    <div class="grid-row">
+                        <div class="grid-col"><div class="form-group"><label>Brands Dealt / Authorised For</label><input type="text" name="brands_dealt"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Capacity Range Supported (KVA)</label><input type="text" name="capacity_range"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Response SLA (hours)</label><input type="number" name="response_sla"></div></div>
+                    </div>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox" name="amc_support_available" value="1"> AMC / Service Support Available</label>
+                    </div>
+                </div>
+
+                <div id="cat-water" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2D — Water & Utility Vendor</h4>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox" name="water_can" value="1"> Water Can</label>
+                        <label class="checkbox-item"><input type="checkbox" name="ro_unit" value="1"> RO Unit</label>
+                        <label class="checkbox-item"><input type="checkbox" name="water_dispenser" value="1"> Water Dispenser</label>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-col"><div class="form-group"><label>Delivery Frequency</label><input type="text" name="delivery_frequency"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Service Area / Locations</label><input type="text" name="service_area"></div></div>
+                        <div class="grid-col">
+                            <div class="form-group">
+                                <label>Contract Type</label>
+                                <input type="text" name="contract_type" placeholder="Rental / Outright">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cat-job" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2E — Job Portal / Recruitment Platform</h4>
+                    <div class="grid-row">
+                        <div class="grid-col"><div class="form-group"><label>Platform Name</label><input type="text" name="platform_name"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Subscription Plans Offered</label><input type="text" name="subscription_plans"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Renewal Cycle</label><input type="text" name="renewal_cycle"></div></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Manager Name & Contact</label>
+                        <input type="text" name="account_manager_name">
+                    </div>
+                </div>
+
+                <div id="cat-furniture" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2F — Furniture Vendor</h4>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox" name="seating" value="1"> Seating</label>
+                        <label class="checkbox-item"><input type="checkbox" name="workstations" value="1"> Workstations</label>
+                        <label class="checkbox-item"><input type="checkbox" name="storage" value="1"> Storage</label>
+                        <label class="checkbox-item"><input type="checkbox" name="cabins" value="1"> Cabins</label>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-col"><div class="form-group"><label>Customization Capability</label><input type="text" name="customization_capability" placeholder="Yes / No"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Typical Lead Time</label><input type="text" name="typical_lead_time"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Product Catalogue Attached?</label><input type="text" name="product_catalogue_attached" placeholder="Yes / No"></div></div>
+                    </div>
+                </div>
+
+                <div id="cat-it" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2G — IT Hardware & Software Vendor</h4>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox" name="bulk_laptop_supply" value="1"> Bulk Laptop / Computer Supply</label>
+                        <label class="checkbox-item"><input type="checkbox" name="crm_implementation" value="1"> CRM Implementation</label>
+                        <label class="checkbox-item"><input type="checkbox" name="erp_implementation" value="1"> ERP Implementation</label>
+                        <label class="checkbox-item"><input type="checkbox" name="sitecore_cms" value="1"> Sitecore / CMS</label>
+                        <label class="checkbox-item"><input type="checkbox" name="repair_amc_services" value="1"> Repair & AMC Services</label>
+                        <label class="checkbox-item"><input type="checkbox" name="oem_reseller" value="1"> OEM Reseller</label>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-col"><div class="form-group"><label>OEM Partnerships</label><input type="text" name="oem_partnerships" placeholder="e.g. Dell, HP, Lenovo, Microsoft"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Bulk Supply Capacity (units/month)</label><input type="number" name="bulk_supply_capacity"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Warranty / AMC Support</label><input type="text" name="warranty_amc_support" placeholder="Yes / No"></div></div>
+                    </div>
+                </div>
+                
+                <div id="cat-contractor" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2H — Individual Contractor / Consultant</h4>
+                    <div class="grid-row">
+                        <div class="grid-col"><div class="form-group"><label>National ID / PAN / Passport No.</label><input type="text" name="contractor_id"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Area of Expertise</label><input type="text" name="area_of_expertise"></div></div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="grid-col">
+                            <div class="form-group">
+                                <label>Engagement Basis</label>
+                                <input type="text" name="engagement_basis" placeholder="Hourly / Daily / Fixed">
+                            </div>
+                        </div>
+                        <div class="grid-col"><div class="form-group"><label>Rate</label><input type="number" name="rate"></div></div>
+                        <div class="grid-col"><div class="form-group"><label>Availability</label><input type="text" name="availability"></div></div>
+                    </div>
+                </div>
+
+                <div id="cat-general" style="display:none;">
+                    <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">2I — General / Other</h4>
+                    <div class="form-group">
+                        <label>Nature of Business / Service (please describe)</label>
+                        <input type="text" name="general_nature_of_business">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<!-- SECTION 2 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="num">3</div>
+                <div>COMPANY / VENDOR DETAILS</div>
+            </div>
+            
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Company / Vendor Name <span class="req">*</span></label>
+                        <input type="text" name="company_vendor_name" placeholder="e.g. Acme Corporation" required>
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Trade Name (if different)</label>
+                        <input type="text" name="trade_name" placeholder="Optional">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Country of Operation <span class="req">*</span></label>
+                        <input type="text" name="country_of_operation" placeholder="Select country" required>
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Currency of Transaction</label>
+                        <input type="text" name="currency_of_transaction" placeholder="e.g. INR / USD">
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Website</label>
+                        <input type="text" name="website" placeholder="www.example.com">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Year of Establishment</label>
+                        <input type="text" name="year_of_establishment" placeholder="YYYY">
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Number of Employees (approx.)</label>
+                        <input type="number" name="number_of_employees" placeholder="Optional">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nature of Business (1 line)</label>
+                <input type="text" name="nature_of_business" placeholder="Optional">
+            </div>
+        </div>
+
+        
+
+<!-- SECTION 3 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="num">4</div>
+                <div>STATUTORY / TAX DETAILS</div>
+            </div>
+            
+            <p style="font-size: 13px; font-style: italic; color: #555; margin-bottom: 20px;">Complete the India block OR the International block, based on the Country of Operation entered in Step 2.</p>
+
+            <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">3A — India Statutory Details</h4>
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>GSTIN / UIN Number</label>
+                        <input type="text" name="gstin_uin_number" placeholder="e.g. 29ABCDE1234F1Z5">
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>PAN Number</label>
+                        <input type="text" name="pan_number" placeholder="10-digit PAN">
+                    </div>
+                </div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>GST Category</label>
+                        <select name="gst_category">
+                            <option value="">Select Category</option>
+                            <option value="Registered">Registered</option>
+                            <option value="Unregistered">Unregistered</option>
+                            <option value="Composition">Composition</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>TAN (optional)</label>
+                        <input type="text" name="tan">
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Udyam / MSME Reg. No. (optional)</label>
+                        <input type="text" name="udyam_msme_reg_no">
+                    </div>
+                </div>
+            </div>
+
+            <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px;">3B — International Statutory Details</h4>
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Tax ID / VAT / EIN Number</label>
+                        <input type="text" name="tax_id_vat_ein_number" placeholder="As applicable">
+                    </div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group">
+                        <label>Company Registration / Incorporation No.</label>
+                        <input type="text" name="company_registration_no">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+<!-- SECTION 7 -->
+        <div class="section">
+            <div class="section-header" style="background-color: #1a365d; display: flex; align-items: stretch; margin-bottom: 20px; padding: 0;">
+                <div class="num" style="background-color: #d25b15; color: white; padding: 10px 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 4px 0 0 4px; border: 1px solid #1a365d; border-right: none;">5</div>
+                <div style="color: white; padding: 10px 20px; font-weight: bold; font-size: 16px; display: flex; align-items: center; text-transform: uppercase;">POINT(S) OF CONTACT (POC)</div>
+            </div>
+            
+            <p style="font-size: 13px; font-style: italic; color: #555; margin-bottom: 15px;">Add one row per contact. Mark at least one contact as Primary.</p>
+
+            <table id="poc-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 13px;">
+                <thead>
+                    <tr style="background-color: #1a365d; color: white;">
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: center; width: 50px;">No.</th>
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: left;">Name</th>
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: left;">Designation</th>
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: left;">Email</th>
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: left;">Phone</th>
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: left;">POC Type</th>
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: center;">Primary ?</th>
+                        <th style="padding: 10px; border: 1px solid #1a365d; text-align: center; width: 40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="poc-tbody">
+                    <tr style="background-color: #f0f4f8;">
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;" class="row-num">1</td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_name[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;" required></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_designation[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="email" name="poc_email[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;" required></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_phone[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;" required></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_type[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><input type="radio" name="poc_primary" value="0" checked></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><button type="button" onclick="removePocRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;" class="row-num">2</td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_name[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_designation[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="email" name="poc_email[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_phone[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_type[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><input type="radio" name="poc_primary" value="1"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><button type="button" onclick="removePocRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+                    </tr>
+                    <tr style="background-color: #f0f4f8;">
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;" class="row-num">3</td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_name[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_designation[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="email" name="poc_email[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_phone[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_type[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><input type="radio" name="poc_primary" value="2"></td>
+                        <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><button type="button" onclick="removePocRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <p style="font-size: 13px; font-style: italic; color: #777; margin: 0;">POC Type examples: Sales / Finance & Billing / Operations & Support / Escalation.</p>
+                <button type="button" onclick="addPocRow()" style="background-color: #f0f0f0; border: 1px solid #ccc; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-size: 13px;">+ Add Row</button>
+            </div>
+        </div>
+
+        
+
+<!-- SECTION 5 (Skipping 4 child table for v1 public form to keep simple, or maybe we just add standard address fields) -->
+        <div class="section">
+            <div class="section-header">
+                <div class="num">6</div>
+                <div>ADDRESS DETAILS</div>
+            </div>
+            
+            <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px;">4A — Registered / Billing Address</h4>
+            <div class="grid-row">
+                <div class="grid-col" style="flex: 2;">
+                    <div class="form-group">
+                        <label>Address Line 1 <span class="req">*</span></label>
+                        <input type="text" name="billing_address_line_1" required>
+                    </div>
+                </div>
+                <div class="grid-col" style="flex: 1;">
+                    <div class="form-group">
+                        <label>Address Line 2</label>
+                        <input type="text" name="billing_address_line_2">
+                    </div>
+                </div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group"><label>City <span class="req">*</span></label><input type="text" name="billing_city" required></div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group"><label>State / Province <span class="req">*</span></label><input type="text" name="billing_state" required></div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group"><label>Postal / ZIP Code <span class="req">*</span></label><input type="text" name="billing_postal_code" required></div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group"><label>Country <span class="req">*</span></label><input type="text" name="billing_country" required></div>
+                </div>
+            </div>
+
+            <h4 style="color: #1a365d; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px;">4B — Shipping / Service Address</h4>
+            <label class="checkbox-item" style="margin-bottom: 15px;"><input type="checkbox" name="same_as_billing_address" value="1"> Same as Billing Address</label>
+            
+            <div id="shipping-address-block">
+                <div class="grid-row">
+                    <div class="grid-col" style="flex: 2;">
+                        <div class="form-group">
+                            <label>Address Line 1</label>
+                            <input type="text" name="shipping_address_line_1">
+                        </div>
+                    </div>
+                    <div class="grid-col" style="flex: 1;">
+                        <div class="form-group">
+                            <label>Address Line 2</label>
+                            <input type="text" name="shipping_address_line_2">
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-col">
+                        <div class="form-group"><label>City</label><input type="text" name="shipping_city"></div>
+                    </div>
+                    <div class="grid-col">
+                        <div class="form-group"><label>State / Province</label><input type="text" name="shipping_state"></div>
+                    </div>
+                    <div class="grid-col">
+                        <div class="form-group"><label>Postal / ZIP Code</label><input type="text" name="shipping_postal_code"></div>
+                    </div>
+                    <div class="grid-col">
+                        <div class="form-group"><label>Country</label><input type="text" name="shipping_country"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+<!-- SECTION 6 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="num">7</div>
+                <div>BANK ACCOUNT DETAILS</div>
+            </div>
+            
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group"><label>Bank Name <span class="req">*</span></label><input type="text" name="bank_name" required></div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group"><label>Account Holder / Beneficiary Name <span class="req">*</span></label><input type="text" name="account_holder_name" required></div>
+                </div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-col">
+                    <div class="form-group"><label>Account Number <span class="req">*</span></label><input type="text" name="account_number" required></div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group"><label>IFSC Code (India)</label><input type="text" name="ifsc_code"></div>
+                </div>
+                <div class="grid-col">
+                    <div class="form-group"><label>SWIFT / IBAN (International)</label><input type="text" name="swift_iban"></div>
+                </div>
+            </div>
+        </div>
+
+
+        
+        
+<!-- SECTION 8 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="num">8</div>
+                <div>KYC DOCUMENT UPLOAD CHECKLIST</div>
+            </div>
+            
+            <p style="font-size: 13px; font-style: italic; color: #555; margin-bottom: 20px;">Tick and attach the documents applicable to your Vendor Type and Country (Step 2 & 3). Accepted formats: PDF, Word, PNG, JPG — max 5MB per file.</p>
+
+            <div class="grid-row" style="margin-top: 15px;">
+                <div class="grid-col"><div class="form-group"><label>PAN Card</label><input type="file" name="file_pan_card"></div></div>
+                <div class="grid-col"><div class="form-group"><label>GST Certificate</label><input type="file" name="file_gst_cert"></div></div>
+            </div>
+            <div class="grid-row">
+                <div class="grid-col"><div class="form-group"><label>Cancelled Cheque</label><input type="file" name="file_cancelled_cheque"></div></div>
+                <div class="grid-col"><div class="form-group"><label>Certificate of Incorporation / MSME</label><input type="file" name="file_incorporation"></div></div>
+            </div>
+        </div>
+
+        
+
+<!-- SECTION 9 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="num">9</div>
+                <div>DECLARATION & SUBMISSION</div>
+            </div>
+            
+            <p style="font-size: 13px; color: #444; background: #f9f9f9; padding: 15px; border-left: 3px solid #1a365d;">I / We hereby declare that the information and documents furnished above are true and correct to the best of my/our knowledge. I / We agree to promptly inform Biztechnosys Infotech Pvt Ltd of any changes to the above details and consent to verification of the information and documents provided.</p>
+
+            <label class="checkbox-item" style="margin-bottom: 25px;">
+                <input type="checkbox" name="terms_accepted" value="1" required> 
+                <strong>I / We accept the Terms & Conditions and confirm the above declaration <span class="req">*</span></strong>
+            </label>
+            
+            <div class="grid-row">
+                <div class="grid-col"><div class="form-group"><label>Authorised Signatory Name</label><input type="text" name="authorised_signatory_name"></div></div>
+                <div class="grid-col"><div class="form-group"><label>Designation</label><input type="text" name="signatory_designation"></div></div>
+                <div class="grid-col"><div class="form-group"><label>Date</label><input type="date" name="signature_date"></div></div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submit-btn">Submit Registration</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Ensure frappe is available or we use fetch API
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // Handle category selection to show/hide sections
+        const categorySelect = document.getElementById('vendor-category-select');
+        const dynamicSections = document.getElementById('dynamic-sections').children;
+        
+        categorySelect.addEventListener('change', function() {
+            for(let i=0; i<dynamicSections.length; i++) {
+                dynamicSections[i].style.display = 'none';
+            }
+            
+            if(this.value === 'HR / Staffing Partner') document.getElementById('cat-hr').style.display = 'block';
+            else if(this.value === 'Travel Vendor') document.getElementById('cat-travel').style.display = 'block';
+            else if(this.value === 'UPS / Power Backup Vendor') document.getElementById('cat-ups').style.display = 'block';
+            else if(this.value === 'Water & Utility Vendor') document.getElementById('cat-water').style.display = 'block';
+            else if(this.value === 'Job Portal / Recruitment Platform') document.getElementById('cat-job').style.display = 'block';
+            else if(this.value === 'Furniture Vendor') document.getElementById('cat-furniture').style.display = 'block';
+            else if(this.value === 'IT Hardware & Software Vendor') document.getElementById('cat-it').style.display = 'block';
+            else if(this.value === 'Individual Contractor / Consultant') document.getElementById('cat-contractor').style.display = 'block';
+            else if(this.value === 'General / Other') document.getElementById('cat-general').style.display = 'block';
+        });
+
+        // Handle Same as billing
+        const sameBillingCheckbox = document.querySelector('input[name="same_as_billing_address"]');
+        const shippingBlock = document.getElementById('shipping-address-block');
+        sameBillingCheckbox.addEventListener('change', function() {
+            if(this.checked) {
+                shippingBlock.style.display = 'none';
+            } else {
+                shippingBlock.style.display = 'block';
+            }
+        });
+    });
+
+    // --- GLOBAL TABLE FUNCTIONS ---
+    // POC Table JS
+    window.pocCount = window.pocCount || 3;
+    window.updatePocRows = function() {
+        const rows = document.querySelectorAll('#poc-tbody tr');
+        rows.forEach((row, index) => {
+            row.querySelector('.row-num').innerText = index + 1;
+            row.querySelector('input[type="radio"]').value = index;
+            // Alternate background colors
+            row.style.backgroundColor = (index % 2 === 0) ? '#f0f4f8' : '#f8f9fa';
+        });
+    };
+    window.addPocRow = function() {
+        window.pocCount++;
+        const tbody = document.getElementById('poc-tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;" class="row-num">${window.pocCount}</td>
+            <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_name[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+            <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_designation[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+            <td style="padding: 5px; border: 1px solid #1a365d;"><input type="email" name="poc_email[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+            <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_phone[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+            <td style="padding: 5px; border: 1px solid #1a365d;"><input type="text" name="poc_type[]" style="width: 100%; border: none; background: transparent; padding: 5px; outline: none;"></td>
+            <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><input type="radio" name="poc_primary" value="${window.pocCount-1}"></td>
+            <td style="padding: 5px; border: 1px solid #1a365d; text-align: center;"><button type="button" onclick="removePocRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+        `;
+        tbody.appendChild(newRow);
+        window.updatePocRows();
+    };
+    window.removePocRow = function(btn) {
+        const row = btn.closest('tr');
+        const tbody = document.getElementById('poc-tbody');
+        if(tbody.children.length > 1) {
+            row.remove();
+            window.updatePocRows();
+        } else {
+            alert("You must have at least one Point of Contact.");
+        }
+    };
+
+    // HR Skills Table JS
+    window.hrCount = window.hrCount || 3;
+    window.updateHrRows = function() {
+        const rows = document.querySelectorAll('#hr-tbody tr');
+        rows.forEach((row, index) => {
+            row.querySelector('.hr-row-num').innerText = index + 1;
+            row.style.backgroundColor = (index % 2 === 0) ? '#f0f4f8' : '#f8f9fa';
+        });
+    };
+    window.addHrRow = function() {
+        window.hrCount++;
+        const tbody = document.getElementById('hr-tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td style="text-align: center;" class="hr-row-num">${window.hrCount}</td>
+            <td><input type="text" name="hr_tech[]"></td>
+            <td><input type="text" name="hr_exp[]"></td>
+            <td><input type="text" name="hr_sal[]"></td>
+            <td><input type="text" name="hr_loc[]"></td>
+            <td><input type="text" name="hr_mode[]"></td>
+            <td style="text-align: center;"><button type="button" onclick="removeHrRow(this)" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px;">&times;</button></td>
+        `;
+        tbody.appendChild(newRow);
+        window.updateHrRows();
+    };
+    window.removeHrRow = function(btn) {
+        const row = btn.closest('tr');
+        const tbody = document.getElementById('hr-tbody');
+        if(tbody.children.length > 1) {
+            row.remove();
+            window.updateHrRows();
+        } else {
+            alert("You must have at least one skill row.");
+        }
+    };
+
+    // Wrap form submission listener in DOMContentLoaded again
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Form submission
+        document.getElementById('vendor-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = 'Submitting...';
+            
+            const formData = new FormData(this);
+            const dataObj = {};
+            formData.forEach((value, key) => {
+                dataObj[key] = value;
+            });
+            
+            // Fix checkboxes (if not checked they aren't in formData)
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                if(!dataObj[cb.name]) dataObj[cb.name] = cb.checked ? 1 : 0;
+                else dataObj[cb.name] = 1;
+            });
+
+            // Build hr_skills child table data
+            if(dataObj.vendor_category === 'HR / Staffing Partner') {
+                const hr_skills = [];
+                const hrRows = document.querySelectorAll('#hr-tbody tr');
+                hrRows.forEach((row) => {
+                    const tech = row.querySelector('input[name="hr_tech[]"]').value.trim();
+                    if(tech) {
+                        hr_skills.push({
+                            technology_skill: tech,
+                            experience_range: row.querySelector('input[name="hr_exp[]"]').value,
+                            salary_range: row.querySelector('input[name="hr_sal[]"]').value,
+                            location: row.querySelector('input[name="hr_loc[]"]').value,
+                            mode_of_support: row.querySelector('input[name="hr_mode[]"]').value
+                        });
+                    }
+                });
+                
+                // Clean up array keys
+                delete dataObj['hr_tech[]'];
+                delete dataObj['hr_exp[]'];
+                delete dataObj['hr_sal[]'];
+                delete dataObj['hr_loc[]'];
+                delete dataObj['hr_mode[]'];
+                
+                if(hr_skills.length > 0) {
+                    dataObj.hr_skills = hr_skills;
+                }
+            }
+            
+            // Build poc_details child table data
+            const poc_details = [];
+            const pocRows = document.querySelectorAll('#poc-tbody tr');
+            pocRows.forEach((row, index) => {
+                const nameInput = row.querySelector('input[name="poc_name[]"]').value.trim();
+                if(nameInput) {
+                    const nameParts = nameInput.split(' ');
+                    const firstName = nameParts[0];
+                    const lastName = nameParts.slice(1).join(' ');
+                    
+                    poc_details.push({
+                        first_name: firstName,
+                        last_name: lastName,
+                        designation: row.querySelector('input[name="poc_designation[]"]').value,
+                        email_address: row.querySelector('input[name="poc_email[]"]').value,
+                        phone_number: row.querySelector('input[name="poc_phone[]"]').value,
+                        poc_type: row.querySelector('input[name="poc_type[]"]').value,
+                        is_primary: row.querySelector('input[name="poc_primary"]').checked ? 1 : 0
+                    });
+                }
+            });
+            
+            // Clean up flat array keys that FormData might have captured
+            delete dataObj['poc_name[]'];
+            delete dataObj['poc_designation[]'];
+            delete dataObj['poc_email[]'];
+            delete dataObj['poc_phone[]'];
+            delete dataObj['poc_type[]'];
+            delete dataObj['poc_primary'];
+
+            if(poc_details.length > 0) {
+                dataObj.poc_details = poc_details;
+            }
+
+            // Frappe API Call with FormData to support file uploads
+            const submitFormData = new FormData();
+            submitFormData.append('data', JSON.stringify(dataObj));
+            
+            // Add all files from original formData to submitFormData
+            for (let [key, value] of formData.entries()) {
+                if (value instanceof File && value.name) {
+                    submitFormData.append(key, value);
+                }
+            }
+
+            fetch('/api/method/custom_biz.api.vendor_registration_api.submit_vendor_registration', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Frappe-CSRF-Token': window.csrf_token || "None"
+                },
+                body: submitFormData
+            })
+            .then(res => res.json())
+            .then(res => {
+                const msgBox = document.getElementById('alert-msg');
+                msgBox.style.display = 'block';
+                msgBox.className = 'alert'; // reset classes
+                
+                if(res.message && res.message.status === 'success') {
+                    const successMsg = "VENDOR REGISTRATION FORM submitted succesfully";
+                    msgBox.innerText = successMsg;
+                    alert(successMsg);
+                    document.getElementById('vendor-form').reset();
+                    btn.innerText = 'Submit Registration';
+                    btn.disabled = false;
+                } else {
+                    const errorMsg = res.message?.message || "An error occurred.";
+                    msgBox.className = 'alert alert-error';
+                    msgBox.innerText = errorMsg;
+                    alert("Error: " + errorMsg);
+                    btn.innerText = 'Submit Registration';
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                const msgBox = document.getElementById('alert-msg');
+                const networkError = "Network error. Please try again.";
+                msgBox.style.display = 'block';
+                msgBox.className = 'alert alert-error';
+                msgBox.innerText = networkError;
+                alert("Error: " + networkError);
+                btn.innerText = 'Submit Registration';
+                btn.disabled = false;
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

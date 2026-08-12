@@ -31,14 +31,10 @@ def file_before_insert(doc, method):
 
     if not frappe.db.exists("File", expected_folder_id):
         # Create folder
-        folder_doc = frappe.get_doc({
-            "doctype": "File",
-            "file_name": folder_name,
-            "is_folder": 1,
-            "folder": "Home",
-            "is_private": 1
-        })
-        folder_doc.insert(ignore_permissions=True)
+        from frappe.core.api.file import create_new_folder
+        folder_doc = create_new_folder(folder_name, "Home")
+        folder_doc.is_private = 1
+        folder_doc.save(ignore_permissions=True)
     
     doc.folder = expected_folder_id
 
@@ -92,20 +88,32 @@ def file_has_permission(doc, ptype, user):
 def migrate_existing_files():
     frappe.only_for("System Manager")
     
-    # Get all files not uploaded by Administrator
+    # Get all files that are not folders
     files = frappe.get_all("File", 
-                           filters={"is_folder": 0, "owner": ["!=", "Administrator"]}, 
-                           fields=["name", "owner", "folder"])
+                           filters={"is_folder": 0}, 
+                           fields=["name", "owner", "folder", "attached_to_doctype", "attached_to_name"])
     count = 0
     
     for f in files:
-        user = f.owner
-        
-        employee_name = frappe.db.get_value("Employee", {"user_id": user}, "employee_name")
-        if employee_name:
-            folder_name = employee_name
+        target_employee_name = None
+        target_user = None
+
+        # Same logic as before_insert:
+        if f.attached_to_doctype == "Employee" and f.attached_to_name:
+            target_employee_name = frappe.db.get_value("Employee", f.attached_to_name, "employee_name")
+            target_user = frappe.db.get_value("Employee", f.attached_to_name, "user_id")
         else:
-            folder_name = frappe.db.get_value("User", user, "full_name") or user
+            target_user = f.owner
+            if target_user == "Administrator" or not target_user:
+                continue
+            target_employee_name = frappe.db.get_value("Employee", {"user_id": target_user}, "employee_name")
+        
+        if target_employee_name:
+            folder_name = target_employee_name
+        elif target_user:
+            folder_name = frappe.db.get_value("User", target_user, "full_name") or target_user
+        else:
+            continue
 
         expected_folder_id = f"Home/{folder_name}"
         
@@ -115,14 +123,10 @@ def migrate_existing_files():
             
         # Create folder if it doesn't exist
         if not frappe.db.exists("File", expected_folder_id):
-            folder_doc = frappe.get_doc({
-                "doctype": "File",
-                "file_name": folder_name,
-                "is_folder": 1,
-                "folder": "Home",
-                "is_private": 1
-            })
-            folder_doc.insert(ignore_permissions=True)
+            from frappe.core.api.file import create_new_folder
+            folder_doc = create_new_folder(folder_name, "Home")
+            folder_doc.is_private = 1
+            folder_doc.save(ignore_permissions=True)
             
         # Move file to the new folder
         frappe.db.set_value("File", f.name, "folder", expected_folder_id)
@@ -131,4 +135,3 @@ def migrate_existing_files():
     frappe.db.commit()
     print(f"Successfully migrated {count} files to their respective employee folders.")
     return count
-

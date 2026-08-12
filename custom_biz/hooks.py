@@ -159,7 +159,8 @@ permission_query_conditions = {
 
 has_permission = {
 	"Salary Slip": "custom_biz.salary_slip_permission.has_permission",
-	"File": "custom_biz.file_management.file_has_permission"
+	"File": "custom_biz.file_management.file_has_permission",
+	"Employee": "custom_biz.employee_permission.employee_has_permission"
 }
 
 # DocType Class
@@ -176,13 +177,17 @@ has_permission = {
 
 doc_events = {
 	"Employee": {
-		"autoname": "custom_biz.employee_naming.employee_autoname"
+		"autoname": "custom_biz.employee_naming.employee_autoname",
+		"validate": "custom_biz.employee_validate.employee_validate"
 	},
 	"Sales Invoice": {
 		"autoname": "custom_biz.sales_invoice_naming.sales_invoice_autoname"
 	},
 	"File": {
 		"before_insert": "custom_biz.file_management.file_before_insert"
+	},
+	"Vendor Registration": {
+		"on_submit": "custom_biz.api.vendor_registration_api.on_submit"
 	}
 }
 
