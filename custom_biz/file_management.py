@@ -67,7 +67,7 @@ def file_has_permission(doc, ptype, user):
         
     roles = frappe.get_roles(user)
     if "System Manager" in roles or "HR Manager" in roles or "HR User" in roles:
-        return None # Fallback to standard permissions
+        return True # Explicitly allow access for these roles
         
     if doc.is_private == 0:
         return None # Fallback to standard permissions for public files
