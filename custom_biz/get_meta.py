@@ -2,11 +2,8 @@ import frappe
 import json
 
 def run():
-    task_meta = frappe.get_meta("Task")
-    project_meta = frappe.get_meta("Project")
-    
+    ws_meta = frappe.get_meta("Workspace")
     data = {
-        "task_fields": [f.fieldname for f in task_meta.fields],
-        "project_fields": [f.fieldname for f in project_meta.fields]
+        "workspace_fields": [f.fieldname for f in ws_meta.fields]
     }
     print(json.dumps(data))

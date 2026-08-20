@@ -1,11 +1,11 @@
 import frappe
 
 def run():
-    page_name = "Intervals Dashboard"
+    page_name = "Resource Workload Dashboard"
     if not frappe.db.exists("Page", page_name):
         doc = frappe.new_doc("Page")
         doc.page_name = page_name
-        doc.title = "Intervals Dashboard"
+        doc.title = "Resource Workload Dashboard"
         doc.module = "Custom Biz"
         doc.standard = "Yes"
         doc.insert(ignore_permissions=True)

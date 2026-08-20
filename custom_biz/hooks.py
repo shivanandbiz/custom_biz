@@ -29,7 +29,7 @@ doctype_js = {
 # Includes in <head>
 # ------------------
 
-app_include_js = "/assets/custom_biz/js/custom_biz.js"
+# app_include_js = "/assets/custom_biz/js/custom_biz.js"
 
 fixtures = [
     {

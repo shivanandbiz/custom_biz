@@ -1,0 +1,237 @@
+<style>
+.dashboard-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    min-height: 100vh;
+}
+.kpi-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+.kpi-title {
+    font-size: 14px;
+    color: #4b5563;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.kpi-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #111827;
+}
+.trend-up {
+    color: #10b981;
+    background-color: #d1fae5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-left: 10px;
+}
+.chart-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+.chart-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 15px;
+}
+.table-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+}
+.custom-table th {
+    background-color: #f9fafb;
+    color: #4b5563;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.custom-table td {
+    font-size: 14px;
+    color: #111827;
+    vertical-align: middle;
+    border-bottom: 1px solid #e5e7eb;
+}
+.badge-project {
+    background-color: #f3f4f6;
+    color: #374151;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 5px;
+    display: inline-block;
+    border: 1px solid #e5e7eb;
+}
+.badge-availability {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.custom-hz-chart {
+    width: 100%;
+    margin-top: 10px;
+    padding-bottom: 10px;
+    position: relative;
+}
+.hz-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.hz-label {
+    width: 120px;
+    font-size: 12px;
+    color: #111827;
+    text-align: right;
+    padding-right: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hz-bar-container {
+    flex: 1;
+    display: flex;
+    height: 20px;
+    background-color: transparent;
+    border-left: 1px solid #9ca3af;
+    position: relative;
+}
+.hz-bar-billable {
+    height: 100%;
+    background-color: #4b89bd;
+}
+.hz-bar-nonbillable {
+    height: 100%;
+    background-color: #d78248;
+}
+.hz-x-axis {
+    display: flex;
+    margin-left: 120px;
+    border-top: 1px solid #9ca3af;
+    padding-top: 5px;
+    position: relative;
+    height: 20px;
+}
+.hz-x-tick {
+    position: absolute;
+    font-size: 11px;
+    color: #4b5563;
+    transform: translateX(-50%);
+}
+.hz-x-title {
+    text-align: center;
+    font-size: 12px;
+    color: #111827;
+    margin-top: 5px;
+    margin-left: 120px;
+}
+.hz-legend {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: #111827;
+    font-weight: 500;
+}
+.hz-legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0 15px;
+}
+.hz-legend-color {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    border-radius: 2px;
+}
+</style>
+
+<div class="dashboard-container">
+    <div class="row">
+        <!-- Filters (Placeholder for Frappe Fields if needed, but we can do it via JS) -->
+        <div class="col-sm-12 text-right mb-3" id="filters-container">
+            <!-- Fields will be injected here via JS -->
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row">
+        <div class="col-md-7">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Utilized Hours (This Month)</div>
+                <div class="d-flex align-items-center">
+                    <div class="kpi-value" id="kpi-total-hours">1,0349.02</div>
+                    <div class="trend-up"><i class="fa fa-arrow-up"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="kpi-card">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="kpi-title">Avg. Resource Utilization %</div>
+                        <div class="kpi-value" id="kpi-avg-util">73 %</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div id="gauge-chart" style="height: 80px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+                <div class="chart-title">Top 10 Utilized Resources</div>
+                <div id="bar-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-container">
+                <div class="chart-title">Resource-wise Projects & Tasks</div>
+                <div class="table-responsive">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;"></th>
+                                <th>Employee <i class="fa fa-caret-up text-muted"></i></th>
+                                <th>Current Project(s)</th>
+                                <th class="text-center">Total Assigned Tasks</th>
+                                <th class="text-center">Tasks Completed</th>
+                                <th class="text-center">Utilized Hours (MTD)</th>
+                                <th class="text-center">Availability</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resource-table-body">
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2026-08-18 15:50:28.040548",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-08-18 15:58:09.997113",
+ "modified_by": "Administrator",
+ "module": "Custom Biz",
+ "name": "resource-workload-da",
+ "owner": "Administrator",
+ "page_name": "resource-workload-da",
+ "roles": [
+  {
+   "role": "All"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Resource Workload Dashboard"
+}
