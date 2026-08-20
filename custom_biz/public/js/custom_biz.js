@@ -15,9 +15,11 @@ frappe.router.on("change", function () {
 	}
 });
 
-// ── Folder Click → directly update cur_list filter and reload ────────────────
-// setup_defaults() is only called once. On subsequent navigations Frappe reuses
-// the existing FileView instance, so we must update cur_list directly.
+// ── Folder Click → update cur_list filter + navigate correctly ───────────────
+// The FileView is a singleton — setup_defaults() runs only once. On subsequent
+// navigations, Frappe reuses the same instance, so we must update cur_list
+// directly. Also, we split folder_path by "/" so frappe.set_route encodes
+// each segment separately, preventing double-encoding of spaces (e.g. %2520).
 $(document).on("click", ".file-grid a.file-wrapper", function (e) {
 	if ($(e.target).is(":checkbox") || $(e.target).hasClass("list-row-checkbox")) {
 		return;
@@ -26,25 +28,32 @@ $(document).on("click", ".file-grid a.file-wrapper", function (e) {
 	const $link = $(this);
 	const href = $link.attr("href") || "";
 
-	// Only intercept folder links
+	// Only intercept folder links (e.g. /app/List/File/Home/Yashil Raj)
 	if (!href.includes("/app/List/File/")) return;
 
 	e.preventDefault();
 	e.stopImmediatePropagation();
 
-	const folder_path = decodeURIComponent(href.replace("/app/List/File/", ""));
+	// Decode once to get clean folder path (e.g. "Home/Yashil Raj")
+	const raw_path = href.replace("/app/List/File/", "");
+	const folder_path = decodeURIComponent(raw_path);
 
-	// If cur_list is already a FileView for File doctype, update it directly
+	// Split into route segments so frappe.set_route handles encoding correctly.
+	// frappe.set_route("List", "File", "Home", "Yashil Raj")
+	//   → /app/List/File/Home/Yashil%20Raj  ✓  (no double-encoding)
+	const path_segments = folder_path.split("/").filter(Boolean);
+	const route_args = ["List", "File", ...path_segments];
+
 	if (window.cur_list && window.cur_list.doctype === "File") {
 		const list = window.cur_list;
 
-		// Update the folder tracking property
+		// Update tracked folder
 		list.current_folder = folder_path;
 
-		// Update the URL without reloading the whole page
-		frappe.set_route("List", "File", folder_path);
+		// Navigate first (updates breadcrumb + URL)
+		frappe.set_route(...route_args);
 
-		// Directly update the filter to "Folder Equals folder_path"
+		// Then apply the Folder Equals filter pill
 		list.filter_area.clear().then(() => {
 			list.filter_area.add([["File", "folder", "=", folder_path, true]]);
 		}).catch(() => {
@@ -52,7 +61,6 @@ $(document).on("click", ".file-grid a.file-wrapper", function (e) {
 			list.refresh();
 		});
 	} else {
-		// Fallback: full route navigation
-		frappe.set_route("List", "File", folder_path);
+		frappe.set_route(...route_args);
 	}
 });
