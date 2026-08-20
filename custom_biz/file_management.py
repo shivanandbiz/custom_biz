@@ -1,8 +1,9 @@
 import frappe
 
-def get_or_create_employee_folder(folder_name):
+def get_or_create_employee_folder(folder_name, target_user=None):
     """
     Creates and secures an Employee folder under 'Home/' in a version-agnostic manner.
+    Ensures owner = target_user so Frappe core file permissions seamlessly include it.
     Compatible with Frappe v13, v14, v15, and v16.
     """
     folder_name = folder_name.strip()
@@ -10,7 +11,6 @@ def get_or_create_employee_folder(folder_name):
 
     if not frappe.db.exists("File", expected_folder_id):
         try:
-            # Method 1: Standard Frappe create_new_folder helper
             try:
                 from frappe.core.api.file import create_new_folder
                 folder_doc = create_new_folder(folder_name, "Home")
@@ -20,9 +20,10 @@ def get_or_create_employee_folder(folder_name):
             
             if folder_doc:
                 folder_doc.is_private = 1
+                if target_user:
+                    folder_doc.owner = target_user
                 folder_doc.save(ignore_permissions=True)
         except Exception:
-            # Method 2: Direct DocType insertion fallback (Universal across all Frappe versions)
             if not frappe.db.exists("File", expected_folder_id):
                 try:
                     folder_doc = frappe.get_doc({
@@ -30,11 +31,21 @@ def get_or_create_employee_folder(folder_name):
                         "file_name": folder_name,
                         "is_folder": 1,
                         "folder": "Home",
-                        "is_private": 1
+                        "is_private": 1,
+                        "owner": target_user or frappe.session.user
                     })
                     folder_doc.insert(ignore_permissions=True)
                 except Exception:
-                    pass  # Handled race condition or concurrent creation
+                    pass
+
+    # Ensure owner is assigned to the Employee user_id and modified timestamp is kept current
+    try:
+        update_dict = {"modified": frappe.utils.now()}
+        if target_user:
+            update_dict["owner"] = target_user
+        frappe.db.set_value("File", expected_folder_id, update_dict, update_modified=False)
+    except Exception:
+        pass
 
     return expected_folder_id
 
@@ -70,7 +81,7 @@ def file_before_insert(doc, method=None):
     else:
         return
 
-    doc.folder = get_or_create_employee_folder(folder_name)
+    doc.folder = get_or_create_employee_folder(folder_name, target_user=target_user)
 
 
 def file_permission_query_conditions(user=None):
@@ -186,7 +197,7 @@ def migrate_existing_files():
         else:
             continue
 
-        expected_folder_id = get_or_create_employee_folder(folder_name)
+        expected_folder_id = get_or_create_employee_folder(folder_name, target_user=target_user)
         
         # Skip if already in the right folder
         if f.folder == expected_folder_id:
