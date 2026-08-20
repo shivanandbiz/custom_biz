@@ -11,7 +11,21 @@ $(document).on("app_ready", function() {
 	}
 });
 
-// Handle folder click in Grid View to ensure clicking folder opens it instantly
+function apply_folder_filter(folder_path) {
+	if (window.cur_list && window.cur_list.doctype === "File" && window.cur_list.filter_area) {
+		try {
+			window.cur_list.filter_area.clear();
+		} catch (err) {}
+
+		setTimeout(() => {
+			window.cur_list.filter_area.add([["File", "folder", "=", folder_path, true]]);
+		}, 50);
+	} else {
+		frappe.set_route("List", "File", folder_path);
+	}
+}
+
+// Handle folder click in Grid View to apply the "Folder Equals [Folder Path]" filter
 $(document).on("click", ".file-grid .file-wrapper", function(e) {
 	// Skip if clicking checkbox
 	if ($(e.target).is(":checkbox") || $(e.target).hasClass("list-row-checkbox")) {
@@ -24,11 +38,11 @@ $(document).on("click", ".file-grid .file-wrapper", function(e) {
 	if (name) {
 		const doc_name = decodeURIComponent(name);
 
-		// If it has folder icon or type, navigate immediately
+		// If it has folder icon or class, apply folder filter immediately
 		if ($wrapper.find(".icon-folder-normal-large, .icon-folder-normal, .folder-normal").length > 0) {
 			e.preventDefault();
 			e.stopPropagation();
-			frappe.set_route("List", "File", doc_name);
+			apply_folder_filter(doc_name);
 			return;
 		}
 
@@ -37,7 +51,7 @@ $(document).on("click", ".file-grid .file-wrapper", function(e) {
 			if (r && r.message && r.message.is_folder) {
 				e.preventDefault();
 				e.stopPropagation();
-				frappe.set_route("List", "File", doc_name);
+				apply_folder_filter(doc_name);
 			}
 		});
 	}
