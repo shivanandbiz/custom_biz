@@ -252,7 +252,7 @@ function render_dashboard(data, page) {
     data.table_data.forEach(row => {
         let projects_html = "";
         row.projects.forEach(p => {
-            projects_html += `<span class="badge-project">${p}</span>`;
+            projects_html += `<a href="/app/project/${encodeURIComponent(p)}" class="badge-project" style="text-decoration: none;" title="Go to Project">${p}</a>`;
         });
 
         // Determine badge color based on availability
@@ -266,14 +266,33 @@ function render_dashboard(data, page) {
             avail_color = "#92400e";
         }
 
+        // Determine tasks link
+        let tasks_link = "/app/task";
+        let filters = [];
+        
+        if (row.task_names) {
+            let task_array = row.task_names.split(',');
+            let name_filter = `["in", ${JSON.stringify(task_array)}]`;
+            filters.push(`name=${encodeURIComponent(name_filter)}`);
+        }
+
+        if (filters.length > 0) {
+            tasks_link = `/app/task?${filters.join('&')}`;
+        }
+
         let tr = `
             <tr>
                 <td><input type="checkbox" disabled class="text-muted"></td>
                 <td>${row.employee}</td>
                 <td>${projects_html}</td>
-                <td class="text-center">${row.assigned_tasks}</td>
+                <td class="text-center">
+                    <a href="${tasks_link}" style="text-decoration: none; color: #111827; font-weight: 500;" title="View Tasks">
+                        ${row.assigned_tasks}
+                    </a>
+                </td>
                 <td class="text-center">${row.completed_tasks}</td>
                 <td class="text-center">${row.utilized_hours}</td>
+                <td class="text-center text-muted">${row.expected_hours}</td>
                 <td class="text-center"><span class="badge-availability" style="background-color: ${avail_bg}; color: ${avail_color}">${row.availability}%</span></td>
             </tr>
         `;

@@ -54,18 +54,48 @@
     border: 1px solid #e2e8f0;
     padding: 20px;
 }
+.custom-table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
 .custom-table th {
-    background-color: #f9fafb;
-    color: #4b5563;
-    font-weight: 600;
-    font-size: 13px;
-    border-bottom: 1px solid #e5e7eb;
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    border-right: 1px solid #e2e8f0 !important;
+    border-top: none !important;
+    padding: 12px 16px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.custom-table th:last-child {
+    border-right: none !important;
 }
 .custom-table td {
     font-size: 14px;
-    color: #111827;
-    vertical-align: middle;
-    border-bottom: 1px solid #e5e7eb;
+    color: #334155;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-right: 1px solid #e2e8f0 !important;
+    padding: 12px 16px !important;
+}
+.custom-table td:last-child {
+    border-right: none !important;
+}
+.custom-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+.custom-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+.custom-table tbody tr:hover td {
+    background-color: #f1f5f9 !important;
 }
 .badge-project {
     background-color: #f3f4f6;
@@ -223,6 +253,7 @@
                                 <th class="text-center">Total Assigned Tasks</th>
                                 <th class="text-center">Tasks Completed</th>
                                 <th class="text-center">Utilized Hours (MTD)</th>
+                                <th class="text-center">Expected Hours</th>
                                 <th class="text-center">Availability</th>
                             </tr>
                         </thead>
