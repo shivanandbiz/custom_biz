@@ -26,6 +26,7 @@ doctype_js = {
     "Employee": "public/js/employee.js"
 }
 
+
 # Includes in <head>
 # ------------------
 
@@ -198,7 +199,11 @@ doc_events = {
 		"autoname": "custom_biz.sales_invoice_naming.sales_invoice_autoname"
 	},
 	"File": {
-		"before_insert": "custom_biz.file_management.file_before_insert"
+		"before_insert": "custom_biz.file_management.file_before_insert",
+		# Fix: When LMS uploads from an unsaved lesson, docname is null.
+		# Clear attached_to_doctype so Frappe's validate_attachment_references
+		# doesn't throw 'Attached To Name must be a string or an integer'.
+		"before_validate": "custom_biz.file.before_validate"
 	},
 	"Vendor Registration": {
 		"on_submit": "custom_biz.api.vendor_registration_api.on_submit"
