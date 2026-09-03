@@ -32,6 +32,9 @@ doctype_js = {
 
 app_include_js = "/assets/custom_biz/js/custom_biz.js"
 
+pdf_body_html = "custom_biz.utils.print_settings.custom_pdf_body_html"
+
+
 fixtures = [
     {
         "dt": "Property Setter",
@@ -207,6 +210,9 @@ doc_events = {
 	},
 	"Vendor Registration": {
 		"on_submit": "custom_biz.api.vendor_registration_api.on_submit"
+	},
+	"Letter Head": {
+		"before_save": "custom_biz.utils.print_settings.letter_head_before_save"
 	}
 }
 
